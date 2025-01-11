@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StoneColor } from '@/constants/boardConfig';
+import { StoneColor } from '@/constants/gameConfig';
 
 export interface Move {
   x: number;

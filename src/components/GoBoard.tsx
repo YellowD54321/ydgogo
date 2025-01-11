@@ -3,7 +3,7 @@ import {
   BOARD_CONFIG,
   BOARD_DIMENSIONS,
   StoneColor,
-} from '@/constants/boardConfig';
+} from '@/constants/gameConfig';
 import { useMove } from '@/hooks/move';
 
 const GoBoard: FC = () => {
