@@ -1,13 +1,13 @@
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import GoBoard from '../GoBoard';
+import GoBoard from '@/components/GoBoard';
 import {
   BOARD_CONFIG,
   BOARD_DIMENSIONS,
   StoneColor,
-} from '../../constants/boardConfig';
-import { useMove } from '../../hooks/move';
-import type { Position, Move } from '../../hooks/move';
+} from '@/constants/gameConfig';
+import { useMove } from '@/hooks/move';
+import type { Position, Move } from '@/hooks/move';
 
 const mockUseMove = useMove as jest.MockedFunction<typeof useMove>;
 
