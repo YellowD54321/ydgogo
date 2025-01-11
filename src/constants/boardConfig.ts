@@ -28,3 +28,9 @@ export const BOARD_DIMENSIONS = {
     return this.WIDTH;
   },
 } as const;
+
+export enum StoneColor {
+  Empty = 'empty',
+  Black = 'black',
+  White = 'white',
+}
