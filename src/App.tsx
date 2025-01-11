@@ -1,5 +1,5 @@
+import GoBoard from '@/components/GoBoard';
 import './App.css';
-import GoBoard from './components/GoBoard';
 
 function App() {
   return (

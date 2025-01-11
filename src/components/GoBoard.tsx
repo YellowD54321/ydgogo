@@ -3,8 +3,8 @@ import {
   BOARD_CONFIG,
   BOARD_DIMENSIONS,
   StoneColor,
-} from '../constants/boardConfig';
-import { useMove } from '../hooks/move';
+} from '@/constants/boardConfig';
+import { useMove } from '@/hooks/move';
 
 const GoBoard: FC = () => {
   const { boardState, hoverPosition, handleMouseMove, handleClick, nextColor } =

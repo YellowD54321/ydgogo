@@ -1,4 +1,4 @@
-import { StoneColor } from '../../constants/gameConfig';
+import { StoneColor } from '@/constants/gameConfig';
 
 export interface IMoveNodeProps {
   x: number;

@@ -1,4 +1,4 @@
-import { MoveNode } from '../MoveNode';
+import { MoveNode } from '@/models/moveNode/MoveNode';
 import { StoneColor } from '@/constants/gameConfig';
 
 describe('MoveNode', () => {

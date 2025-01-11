@@ -1,4 +1,4 @@
-import { IMoveNode, IMoveNodeProps } from './types';
+import { IMoveNode, IMoveNodeProps } from '@/models/moveNode/types';
 import { StoneColor } from '@/constants/gameConfig';
 
 export class MoveNode implements IMoveNode {
