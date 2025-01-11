@@ -17,38 +17,38 @@
 - 紀錄棋步的顏色
 - 紀錄棋步的類型
 - 紀錄棋步的座標
-- 可以 undo
-- 可以 redo
+- 可以 previous step
+- 可以 next step
 - 可以 clear
-- 可以切換不同分支
 - 可以將所有分支顯示在畫面上
 - 可以點擊畫面上任一分支的任一棋步，並切換到該棋步
 
 ## 資料結構
 
 ```typescript
-interface MoveNode {
-  id: string; // 唯一識別符
-  x: number;
-  y: number;
-  color: string; // 黑或白
-  parentNode: MoveNode | null; // 指向父節點
-  childrenNodes: MoveNode[]; // 子節點陣列（分支）
-  moveNumber: number; // 在當前分支中的步數
-  branchNumber: number; // 分支編號
+export enum StoneColor {
+  EMPTY = 'EMPTY',
+  BLACK = 'BLACK',
+  WHITE = 'WHITE',
 }
 
-interface GamePointer {
+interface MoveNode {
+  id: string; // 唯一識別符，總步數
+  x: number;
+  y: number;
+  color: StoneColor; // 黑或白
+  parentNode: MoveNode | null; // 指向父節點
+  childrenNodes: MoveNode[]; // 子節點陣列（分支）
+}
+
+interface Pointer {
   currentNode: MoveNode; // 當前節點
-  currentBranch: number; // 當前分支編號
   currentMoveNumber: number; // 當前步數
+  totalMoveNumber: number; // 總步數
 }
 
 interface MoveTree {
   rootNode: MoveNode;
-  pointer: GamePointer;
-  currentBranchNumber: number;
-  currentMoveNumber: number;
-  currentMoveNode: MoveNode;
+  pointer: Pointer;
 }
 ```

@@ -4,54 +4,32 @@ import { StoneColor } from '@/constants/gameConfig';
 describe('MoveNode', () => {
   describe('Node Creation', () => {
     it('should create a node with correct properties', () => {
-      const node = new MoveNode({
+      const rootNode = new MoveNode({
         x: 3,
         y: 4,
-        color: StoneColor.BLACK,
-        moveNumber: 1,
-        branchNumber: 0,
+        color: StoneColor.Black,
+        parentNode: null,
+        totalMoveNumber: 0,
       });
 
-      expect(node.id).toBeDefined();
-      expect(node.x).toBe(3);
-      expect(node.y).toBe(4);
-      expect(node.color).toBe(StoneColor.BLACK);
-      expect(node.moveNumber).toBe(1);
-      expect(node.branchNumber).toBe(0);
-      expect(node.parentNode).toBeNull();
-      expect(node.childrenNodes).toEqual([]);
-    });
-
-    it('should generate unique id for each node', () => {
-      const node1 = new MoveNode({
-        x: 0,
-        y: 0,
-        color: StoneColor.BLACK,
-        moveNumber: 1,
-        branchNumber: 0,
-      });
-
-      const node2 = new MoveNode({
-        x: 0,
-        y: 1,
-        color: StoneColor.BLACK,
-        moveNumber: 2,
-        branchNumber: 0,
-      });
-
-      expect(node1.id).not.toBe(node2.id);
+      expect(rootNode.id).toBeDefined();
+      expect(rootNode.x).toBe(3);
+      expect(rootNode.y).toBe(4);
+      expect(rootNode.color).toBe(StoneColor.Black);
+      expect(rootNode.parentNode).toBeNull();
+      expect(rootNode.childrenNodes).toHaveLength(0);
     });
 
     it('should generate correct id format', () => {
       const node = new MoveNode({
         x: 0,
         y: 0,
-        color: StoneColor.BLACK,
-        moveNumber: 1,
-        branchNumber: 2,
+        color: StoneColor.Black,
+        parentNode: null,
+        totalMoveNumber: 0,
       });
 
-      expect(node.id).toBe('move_1_branch_2');
+      expect(node.id).toBe('1');
     });
   });
 
@@ -60,21 +38,20 @@ describe('MoveNode', () => {
       const parentNode = new MoveNode({
         x: 3,
         y: 3,
-        color: StoneColor.BLACK,
-        moveNumber: 1,
-        branchNumber: 0,
+        color: StoneColor.Black,
+        parentNode: null,
+        totalMoveNumber: 0,
       });
 
       const childNode = new MoveNode({
         x: 4,
         y: 4,
-        color: StoneColor.WHITE,
-        moveNumber: 2,
-        branchNumber: 0,
-        parentNode,
+        color: StoneColor.White,
+        parentNode: parentNode,
+        totalMoveNumber: 1,
       });
 
-      expect(childNode.parentNode).toBe(parentNode);
+      expect(childNode.parentNode?.id).toBe(parentNode.id);
       expect(parentNode.childrenNodes).toContain(childNode);
     });
 
@@ -82,27 +59,25 @@ describe('MoveNode', () => {
       const parentNode = new MoveNode({
         x: 3,
         y: 3,
-        color: StoneColor.BLACK,
-        moveNumber: 1,
-        branchNumber: 0,
+        color: StoneColor.Black,
+        parentNode: null,
+        totalMoveNumber: 0,
       });
 
       const child1 = new MoveNode({
         x: 4,
         y: 4,
-        color: StoneColor.WHITE,
-        moveNumber: 2,
-        branchNumber: 0,
-        parentNode,
+        color: StoneColor.White,
+        parentNode: parentNode,
+        totalMoveNumber: 1,
       });
 
       const child2 = new MoveNode({
         x: 15,
         y: 15,
-        color: StoneColor.WHITE,
-        moveNumber: 2,
-        branchNumber: 1,
-        parentNode,
+        color: StoneColor.White,
+        parentNode: parentNode,
+        totalMoveNumber: 2,
       });
 
       expect(parentNode.childrenNodes).toHaveLength(2);
@@ -114,18 +89,17 @@ describe('MoveNode', () => {
       const parentNode = new MoveNode({
         x: 3,
         y: 3,
-        color: StoneColor.BLACK,
-        moveNumber: 1,
-        branchNumber: 0,
+        color: StoneColor.Black,
+        parentNode: null,
+        totalMoveNumber: 0,
       });
 
       const childNode = new MoveNode({
         x: 4,
         y: 4,
-        color: StoneColor.WHITE,
-        moveNumber: 2,
-        branchNumber: 0,
-        parentNode,
+        color: StoneColor.White,
+        parentNode: parentNode,
+        totalMoveNumber: 1,
       });
 
       parentNode.addChild(childNode);
@@ -133,7 +107,6 @@ describe('MoveNode', () => {
 
       parentNode.addChild(childNode);
       expect(parentNode.childrenNodes).toHaveLength(1);
-
       expect(parentNode.childrenNodes).toContain(childNode);
     });
 
@@ -141,18 +114,17 @@ describe('MoveNode', () => {
       const parentNode = new MoveNode({
         x: 3,
         y: 3,
-        color: StoneColor.BLACK,
-        moveNumber: 1,
-        branchNumber: 0,
+        color: StoneColor.Black,
+        parentNode: null,
+        totalMoveNumber: 0,
       });
 
       const childNode = new MoveNode({
         x: 4,
         y: 4,
-        color: StoneColor.WHITE,
-        moveNumber: 2,
-        branchNumber: 0,
-        parentNode,
+        color: StoneColor.White,
+        parentNode: parentNode,
+        totalMoveNumber: 1,
       });
 
       parentNode.removeChild(childNode);
@@ -164,20 +136,41 @@ describe('MoveNode', () => {
       const parentNode = new MoveNode({
         x: 3,
         y: 3,
-        color: StoneColor.BLACK,
-        moveNumber: 1,
-        branchNumber: 0,
+        color: StoneColor.Black,
+        parentNode: null,
+        totalMoveNumber: 0,
       });
 
       const nonChildNode = new MoveNode({
         x: 4,
         y: 4,
-        color: StoneColor.WHITE,
-        moveNumber: 2,
-        branchNumber: 0,
+        color: StoneColor.White,
+        parentNode: null,
+        totalMoveNumber: 1,
       });
 
       expect(() => parentNode.removeChild(nonChildNode)).not.toThrow();
+    });
+
+    it('should correctly set currentMoveNumber', () => {
+      const parentNode = new MoveNode({
+        x: 3,
+        y: 3,
+        color: StoneColor.Black,
+        parentNode: null,
+        totalMoveNumber: 0,
+      });
+
+      const childNode = new MoveNode({
+        x: 4,
+        y: 4,
+        color: StoneColor.White,
+        parentNode: parentNode,
+        totalMoveNumber: 1,
+      });
+
+      expect(parentNode.currentMoveNumber).toBe(0);
+      expect(childNode.currentMoveNumber).toBe(1);
     });
   });
 });

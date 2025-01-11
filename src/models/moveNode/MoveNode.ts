@@ -1,4 +1,4 @@
-import { IMoveNode, IMoveNodeProps } from '@/models/moveNode/types';
+import { IMoveNode, IMoveNodeProps } from './types';
 import { StoneColor } from '@/constants/gameConfig';
 
 export class MoveNode implements IMoveNode {
@@ -6,8 +6,7 @@ export class MoveNode implements IMoveNode {
   public readonly x: number;
   public readonly y: number;
   public readonly color: StoneColor;
-  public readonly moveNumber: number;
-  public readonly branchNumber: number;
+  public readonly currentMoveNumber: number;
   public parentNode: IMoveNode | null;
   public childrenNodes: IMoveNode[];
 
@@ -15,12 +14,14 @@ export class MoveNode implements IMoveNode {
     this.x = props.x;
     this.y = props.y;
     this.color = props.color;
-    this.moveNumber = props.moveNumber;
-    this.branchNumber = props.branchNumber;
-    this.parentNode = props.parentNode || null;
+    this.parentNode = props.parentNode;
+    this.currentMoveNumber =
+      typeof props.parentNode?.currentMoveNumber === 'number'
+        ? props.parentNode.currentMoveNumber + 1
+        : 0; // 根節點的 currentMoveNumber 為 0
     this.childrenNodes = [];
 
-    this.id = `move_${this.moveNumber}_branch_${this.branchNumber}`;
+    this.id = `${props.totalMoveNumber + 1}`;
 
     if (this.parentNode) {
       this.parentNode.addChild(this);
