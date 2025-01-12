@@ -36,7 +36,7 @@ export class MoveTree implements IMoveTree {
 
     this.pointer = {
       currentNode: newNode,
-      currentMoveNumber: this.pointer.currentMoveNumber + 1,
+      currentMoveNumber: newNode.currentMoveNumber,
       totalMoveNumber: this.pointer.totalMoveNumber + 1,
     };
   }

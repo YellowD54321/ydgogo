@@ -6,8 +6,9 @@ import {
   BOARD_DIMENSIONS,
   StoneColor,
 } from '@/constants/gameConfig';
-import { useMove } from '@/hooks/move';
-import type { Position, Move } from '@/hooks/move';
+import { useMove } from '@/hooks/useMove';
+import type { Position } from '@/hooks/useMove';
+import { MoveTree } from '@/models/moveTree/MoveTree';
 
 const mockUseMove = useMove as jest.MockedFunction<typeof useMove>;
 
@@ -16,15 +17,24 @@ const EMPTY_BOARD = Array(BOARD_CONFIG.SIZE)
   .fill(null)
   .map(() => Array(BOARD_CONFIG.SIZE).fill(StoneColor.Empty));
 
-jest.mock('../../hooks/move', () => ({
-  useMove: jest.fn(() => ({
-    boardState: EMPTY_BOARD,
-    hoverPosition: null,
-    handleMouseMove: jest.fn(),
-    handleClick: jest.fn(),
-    nextColor: StoneColor.Black,
-    moves: [],
-  })),
+const createMockMoveTree = () => new MoveTree();
+
+const createDefaultMockResult = (overrides = {}) => ({
+  boardState: EMPTY_BOARD,
+  moveTree: createMockMoveTree(),
+  hoverPosition: null,
+  handleMouseMove: jest.fn(),
+  handleClick: jest.fn(),
+  handlePreviousStep: jest.fn(),
+  handleNextStep: jest.fn(),
+  handleClear: jest.fn(),
+  handleSwitchNode: jest.fn(),
+  nextColor: StoneColor.Black,
+  ...overrides,
+});
+
+jest.mock('../../hooks/useMove', () => ({
+  useMove: jest.fn(() => createDefaultMockResult()),
 }));
 
 describe('GoBoard', () => {
@@ -35,14 +45,12 @@ describe('GoBoard', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseMove.mockImplementation(() => ({
-      boardState: EMPTY_BOARD,
-      hoverPosition: null,
-      handleMouseMove: defaultMockHandleMouseMove,
-      handleClick: defaultMockHandleClick,
-      nextColor: StoneColor.Black,
-      moves: [],
-    }));
+    mockUseMove.mockImplementation(() =>
+      createDefaultMockResult({
+        handleMouseMove: defaultMockHandleMouseMove,
+        handleClick: defaultMockHandleClick,
+      })
+    );
     ({ container } = render(<GoBoard />));
     board = container.querySelector('svg');
   });
@@ -182,14 +190,11 @@ describe('GoBoard', () => {
       mockBoardState[TEST_STONES.WHITE.y][TEST_STONES.WHITE.x] =
         StoneColor.White;
 
-      mockUseMove.mockImplementation(() => ({
-        boardState: mockBoardState,
-        hoverPosition: null,
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: defaultMockHandleClick,
-        nextColor: StoneColor.Black,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          boardState: mockBoardState,
+        })
+      );
       ({ container } = render(<GoBoard />));
     });
 
@@ -257,14 +262,11 @@ describe('GoBoard', () => {
     const PREVIEW_POSITION = { x: 5, y: 5 };
 
     beforeEach(() => {
-      mockUseMove.mockImplementation(() => ({
-        boardState: EMPTY_BOARD,
-        hoverPosition: PREVIEW_POSITION,
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: defaultMockHandleClick,
-        nextColor: StoneColor.Black,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          hoverPosition: PREVIEW_POSITION,
+        })
+      );
       ({ container } = render(<GoBoard />));
     });
 
@@ -290,14 +292,12 @@ describe('GoBoard', () => {
     });
 
     test('shows preview stone with correct color', () => {
-      mockUseMove.mockImplementation(() => ({
-        boardState: EMPTY_BOARD,
-        hoverPosition: PREVIEW_POSITION,
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: defaultMockHandleClick,
-        nextColor: StoneColor.White,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          hoverPosition: PREVIEW_POSITION,
+          nextColor: StoneColor.White,
+        })
+      );
       ({ container } = render(<GoBoard />));
 
       const previewStone = container.querySelector('circle[opacity="0.5"]');
@@ -305,14 +305,12 @@ describe('GoBoard', () => {
     });
 
     test('shows white preview stone with black border', () => {
-      mockUseMove.mockImplementation(() => ({
-        boardState: EMPTY_BOARD,
-        hoverPosition: PREVIEW_POSITION,
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: defaultMockHandleClick,
-        nextColor: StoneColor.White,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          hoverPosition: PREVIEW_POSITION,
+          nextColor: StoneColor.White,
+        })
+      );
       ({ container } = render(<GoBoard />));
 
       const previewStone = container.querySelector('circle[opacity="0.5"]');
@@ -354,14 +352,13 @@ describe('GoBoard', () => {
 
   describe('Click Events', () => {
     test('handles click on empty intersection', () => {
-      mockUseMove.mockImplementation(() => ({
-        boardState: EMPTY_BOARD.map((row) => [...row]),
-        hoverPosition: { x: 5, y: 5 },
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: defaultMockHandleClick,
-        nextColor: StoneColor.Black,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          boardState: EMPTY_BOARD.map((row) => [...row]),
+          hoverPosition: { x: 5, y: 5 },
+          handleClick: defaultMockHandleClick,
+        })
+      );
       ({ container } = render(<GoBoard />));
       board = container.querySelector('svg');
 
@@ -376,14 +373,14 @@ describe('GoBoard', () => {
       mockBoardState[5][5] = StoneColor.Black;
       const mockHandleClick = jest.fn();
 
-      mockUseMove.mockImplementation(() => ({
-        boardState: mockBoardState,
-        hoverPosition: { x: 5, y: 5 },
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: mockHandleClick,
-        nextColor: StoneColor.White,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          boardState: mockBoardState,
+          hoverPosition: { x: 5, y: 5 },
+          handleClick: mockHandleClick,
+          nextColor: StoneColor.White,
+        })
+      );
 
       ({ container } = render(<GoBoard />));
       board = container.querySelector('svg');
@@ -394,14 +391,11 @@ describe('GoBoard', () => {
 
     test('handles click outside board', () => {
       const mockHandleClick = jest.fn();
-      mockUseMove.mockImplementation(() => ({
-        boardState: EMPTY_BOARD,
-        hoverPosition: null,
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: mockHandleClick,
-        nextColor: StoneColor.Black,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          handleClick: mockHandleClick,
+        })
+      );
 
       ({ container } = render(<GoBoard />));
       board = container.querySelector('svg');
@@ -418,27 +412,26 @@ describe('GoBoard', () => {
         currentState[pos.y][pos.x] = StoneColor.Black;
       });
 
-      mockUseMove.mockImplementation(() => ({
-        boardState: currentState,
-        hoverPosition: { x: 5, y: 5 },
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: mockHandleClick,
-        nextColor: StoneColor.Black,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          boardState: currentState,
+          hoverPosition: { x: 5, y: 5 },
+          handleClick: mockHandleClick,
+        })
+      );
       ({ container } = render(<GoBoard />));
       board = container.querySelector('svg');
 
       fireEvent.click(board!);
 
-      mockUseMove.mockImplementation(() => ({
-        boardState: currentState,
-        hoverPosition: { x: 5, y: 5 },
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: mockHandleClick,
-        nextColor: StoneColor.White,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          boardState: currentState,
+          hoverPosition: { x: 5, y: 5 },
+          handleClick: mockHandleClick,
+          nextColor: StoneColor.White,
+        })
+      );
       render(<GoBoard />);
 
       const stones = container.querySelectorAll(
@@ -455,65 +448,30 @@ describe('GoBoard', () => {
           nextColor === StoneColor.Black ? StoneColor.White : StoneColor.Black;
       });
 
-      mockUseMove.mockImplementation(() => ({
-        boardState: EMPTY_BOARD,
-        hoverPosition: { x: 5, y: 5 },
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: mockHandleClick,
-        nextColor,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          hoverPosition: { x: 5, y: 5 },
+          handleClick: mockHandleClick,
+          nextColor,
+        })
+      );
       ({ container } = render(<GoBoard />));
       board = container.querySelector('svg');
 
       fireEvent.click(board!);
       expect(nextColor).toBe(StoneColor.White);
 
-      mockUseMove.mockImplementation(() => ({
-        boardState: EMPTY_BOARD,
-        hoverPosition: { x: 5, y: 5 },
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: mockHandleClick,
-        nextColor,
-        moves: [],
-      }));
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          hoverPosition: { x: 5, y: 5 },
+          handleClick: mockHandleClick,
+          nextColor,
+        })
+      );
       render(<GoBoard />);
 
       fireEvent.click(board!);
       expect(nextColor).toBe(StoneColor.Black);
-    });
-
-    test('records move history correctly', () => {
-      const mockMoves: Move[] = [];
-      const mockHandleClick = jest.fn().mockImplementation((pos: Position) => {
-        mockMoves.push({
-          x: pos.x,
-          y: pos.y,
-          color: StoneColor.Black,
-          timestamp: Date.now(),
-        });
-      });
-
-      mockUseMove.mockImplementation(() => ({
-        boardState: EMPTY_BOARD,
-        hoverPosition: { x: 5, y: 5 },
-        handleMouseMove: defaultMockHandleMouseMove,
-        handleClick: mockHandleClick,
-        nextColor: StoneColor.Black,
-        moves: mockMoves,
-      }));
-      ({ container } = render(<GoBoard />));
-      board = container.querySelector('svg');
-
-      fireEvent.click(board!);
-
-      expect(mockMoves).toHaveLength(1);
-      expect(mockMoves[0]).toMatchObject({
-        x: 5,
-        y: 5,
-        color: StoneColor.Black,
-      });
-      expect(mockMoves[0].timestamp).toBeDefined();
     });
   });
 });
