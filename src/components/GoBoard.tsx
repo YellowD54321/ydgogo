@@ -4,11 +4,11 @@ import {
   BOARD_DIMENSIONS,
   StoneColor,
 } from '@/constants/gameConfig';
-import { useMove } from '@/hooks/move';
+import { useMove } from '@/hooks/useMove';
 
 const GoBoard: FC = () => {
   const { boardState, hoverPosition, handleMouseMove, handleClick, nextColor } =
-    useMove(BOARD_CONFIG.SIZE);
+    useMove();
 
   const handleMouseMoveOnBoard = (e: React.MouseEvent<SVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -26,21 +26,22 @@ const GoBoard: FC = () => {
     }
   };
 
+  const handleBoardClick = (): void => {
+    if (
+      hoverPosition &&
+      boardState[hoverPosition.y][hoverPosition.x] === StoneColor.Empty
+    ) {
+      handleClick(hoverPosition);
+    }
+  };
+
   return (
     <svg
       width={BOARD_DIMENSIONS.WIDTH}
       height={BOARD_DIMENSIONS.HEIGHT}
       onMouseMove={handleMouseMoveOnBoard}
       onMouseLeave={() => handleMouseMove(null)}
-      onClick={() =>
-        hoverPosition &&
-        hoverPosition.x >= 0 &&
-        hoverPosition.x < BOARD_CONFIG.SIZE &&
-        hoverPosition.y >= 0 &&
-        hoverPosition.y < BOARD_CONFIG.SIZE &&
-        boardState[hoverPosition.y][hoverPosition.x] === StoneColor.Empty &&
-        handleClick(hoverPosition)
-      }
+      onClick={handleBoardClick}
     >
       {/* 木頭底色 */}
       <rect
