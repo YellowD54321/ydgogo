@@ -8,7 +8,7 @@ import { useMove } from '@/hooks/useMove';
 
 const GoBoard: FC = () => {
   const { boardState, hoverPosition, handleMouseMove, handleClick, nextColor } =
-    useMove(BOARD_CONFIG.SIZE);
+    useMove();
 
   const handleMouseMoveOnBoard = (e: React.MouseEvent<SVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();

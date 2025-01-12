@@ -72,8 +72,6 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
     moveTreeRef.current.addMove(x, y, nextColor);
 
     updateBoardState();
-
-    console.log(moveTreeRef.current);
   };
 
   const handlePreviousStep = () => {

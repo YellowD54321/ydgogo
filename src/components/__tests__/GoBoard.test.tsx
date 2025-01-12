@@ -7,8 +7,9 @@ import {
   StoneColor,
 } from '@/constants/gameConfig';
 import { useMove } from '@/hooks/useMove';
-import type { Position } from '@/hooks/useMove';
 import { MoveTree } from '@/models/moveTree/MoveTree';
+import { Position } from '@/contexts/MoveContext';
+import { MoveProvider } from '@/contexts/MoveProvider';
 
 const mockUseMove = useMove as jest.MockedFunction<typeof useMove>;
 
@@ -30,6 +31,11 @@ const createDefaultMockResult = (overrides = {}) => ({
   handleClear: jest.fn(),
   handleSwitchNode: jest.fn(),
   nextColor: StoneColor.Black,
+  buttonStates: {
+    canClear: false,
+    canPrevious: false,
+    canNext: false,
+  },
   ...overrides,
 });
 
@@ -43,6 +49,10 @@ describe('GoBoard', () => {
   const defaultMockHandleMouseMove = jest.fn();
   const defaultMockHandleClick = jest.fn();
 
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <MoveProvider boardSize={BOARD_CONFIG.SIZE}>{children}</MoveProvider>
+  );
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseMove.mockImplementation(() =>
@@ -51,7 +61,7 @@ describe('GoBoard', () => {
         handleClick: defaultMockHandleClick,
       })
     );
-    ({ container } = render(<GoBoard />));
+    ({ container } = render(<GoBoard />, { wrapper }));
     board = container.querySelector('svg');
   });
 
@@ -195,7 +205,7 @@ describe('GoBoard', () => {
           boardState: mockBoardState,
         })
       );
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
     });
 
     test('renders stones with correct colors', () => {
@@ -267,7 +277,7 @@ describe('GoBoard', () => {
           hoverPosition: PREVIEW_POSITION,
         })
       );
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
     });
 
     test('shows preview stone on hover', () => {
@@ -298,7 +308,7 @@ describe('GoBoard', () => {
           nextColor: StoneColor.White,
         })
       );
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
 
       const previewStone = container.querySelector('circle[opacity="0.5"]');
       expect(previewStone).toHaveAttribute('fill', 'white');
@@ -311,7 +321,7 @@ describe('GoBoard', () => {
           nextColor: StoneColor.White,
         })
       );
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
 
       const previewStone = container.querySelector('circle[opacity="0.5"]');
       expect(previewStone).toHaveAttribute('stroke', 'black');
@@ -359,7 +369,7 @@ describe('GoBoard', () => {
           handleClick: defaultMockHandleClick,
         })
       );
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
       board = container.querySelector('svg');
 
       fireEvent.click(board!);
@@ -382,7 +392,7 @@ describe('GoBoard', () => {
         })
       );
 
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
       board = container.querySelector('svg');
 
       fireEvent.click(board!);
@@ -397,7 +407,7 @@ describe('GoBoard', () => {
         })
       );
 
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
       board = container.querySelector('svg');
 
       fireEvent.click(board!);
@@ -419,7 +429,7 @@ describe('GoBoard', () => {
           handleClick: mockHandleClick,
         })
       );
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
       board = container.querySelector('svg');
 
       fireEvent.click(board!);
@@ -432,7 +442,7 @@ describe('GoBoard', () => {
           nextColor: StoneColor.White,
         })
       );
-      render(<GoBoard />);
+      render(<GoBoard />, { wrapper });
 
       const stones = container.querySelectorAll(
         `circle[r="${BOARD_CONFIG.CELL_SIZE / 2 - 1}"]`
@@ -455,7 +465,7 @@ describe('GoBoard', () => {
           nextColor,
         })
       );
-      ({ container } = render(<GoBoard />));
+      ({ container } = render(<GoBoard />, { wrapper }));
       board = container.querySelector('svg');
 
       fireEvent.click(board!);
@@ -468,7 +478,7 @@ describe('GoBoard', () => {
           nextColor,
         })
       );
-      render(<GoBoard />);
+      render(<GoBoard />, { wrapper });
 
       fireEvent.click(board!);
       expect(nextColor).toBe(StoneColor.Black);
