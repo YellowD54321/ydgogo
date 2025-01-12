@@ -1,12 +1,17 @@
 import { renderHook, act } from '@testing-library/react';
 import { useMove } from '../useMove';
 import { StoneColor } from '@/constants/gameConfig';
+import { MoveProvider } from '@/contexts/MoveProvider';
 
 describe('useMove', () => {
   const BOARD_SIZE = 19;
 
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <MoveProvider boardSize={BOARD_SIZE}>{children}</MoveProvider>
+  );
+
   it('should initialize with empty board', () => {
-    const { result } = renderHook(() => useMove(BOARD_SIZE));
+    const { result } = renderHook(() => useMove(), { wrapper });
 
     // 檢查初始棋盤是否為空
     expect(result.current.boardState).toHaveLength(BOARD_SIZE);
@@ -23,7 +28,7 @@ describe('useMove', () => {
   });
 
   it('should handle mouse move', () => {
-    const { result } = renderHook(() => useMove(BOARD_SIZE));
+    const { result } = renderHook(() => useMove(), { wrapper });
 
     act(() => {
       result.current.handleMouseMove({ x: 3, y: 3 });
@@ -33,7 +38,7 @@ describe('useMove', () => {
   });
 
   it('should handle click and place stone', () => {
-    const { result } = renderHook(() => useMove(BOARD_SIZE));
+    const { result } = renderHook(() => useMove(), { wrapper });
 
     // 放置黑子
     act(() => {
@@ -53,7 +58,7 @@ describe('useMove', () => {
   });
 
   it('should not place stone on occupied position', () => {
-    const { result } = renderHook(() => useMove(BOARD_SIZE));
+    const { result } = renderHook(() => useMove(), { wrapper });
 
     // 放置黑子
     act(() => {
@@ -70,7 +75,7 @@ describe('useMove', () => {
   });
 
   it('should handle previous step', () => {
-    const { result } = renderHook(() => useMove(BOARD_SIZE));
+    const { result } = renderHook(() => useMove(), { wrapper });
 
     // 放置兩顆棋子
     act(() => {
@@ -89,7 +94,7 @@ describe('useMove', () => {
   });
 
   it('should handle next step', () => {
-    const { result } = renderHook(() => useMove(BOARD_SIZE));
+    const { result } = renderHook(() => useMove(), { wrapper });
 
     // 放置兩顆棋子
     act(() => {
@@ -115,7 +120,7 @@ describe('useMove', () => {
   });
 
   it('should handle clear board', () => {
-    const { result } = renderHook(() => useMove(BOARD_SIZE));
+    const { result } = renderHook(() => useMove(), { wrapper });
 
     // 放置兩顆棋子
     act(() => {
@@ -138,7 +143,7 @@ describe('useMove', () => {
   });
 
   it('should handle switch to specific node', () => {
-    const { result } = renderHook(() => useMove(BOARD_SIZE));
+    const { result } = renderHook(() => useMove(), { wrapper });
 
     // 放置兩顆棋子
     act(() => {
