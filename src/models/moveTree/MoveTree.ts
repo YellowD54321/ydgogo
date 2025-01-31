@@ -2,6 +2,8 @@ import { MoveNode } from '@/models/moveNode/MoveNode';
 import { IMoveNode } from '@/models/moveNode/types';
 import { IGamePointer, IMoveTree } from './types';
 import { StoneColor } from '@/constants/gameConfig';
+import { Group } from '@/models/capture/types';
+import { Stone } from '@/types/point';
 
 const DEFAULT_TOTAL_MOVE_NUMBER = 0;
 
@@ -25,13 +27,14 @@ export class MoveTree implements IMoveTree {
     };
   }
 
-  public addMove(x: number, y: number, color: StoneColor): void {
+  public addMove(stone: Stone, capturedGroups: Group[]): void {
     const newNode = new MoveNode({
-      x,
-      y,
-      color,
+      x: stone.x,
+      y: stone.y,
+      color: stone.color,
       parentNode: this.pointer.currentNode,
       totalMoveNumber: this.pointer.totalMoveNumber,
+      capturedGroups,
     });
 
     this.pointer = {

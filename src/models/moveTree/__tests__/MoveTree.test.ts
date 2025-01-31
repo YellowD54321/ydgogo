@@ -17,7 +17,7 @@ describe('MoveTree', () => {
     });
 
     it('should add move correctly', () => {
-      moveTree.addMove(3, 3, StoneColor.Black);
+      moveTree.addMove({ x: 3, y: 3, color: StoneColor.Black }, []);
 
       expect(moveTree.pointer.currentMoveNumber).toBe(1);
       expect(moveTree.pointer.totalMoveNumber).toBe(1);
@@ -27,8 +27,8 @@ describe('MoveTree', () => {
     });
 
     it('should go to previous step', () => {
-      moveTree.addMove(3, 3, StoneColor.Black);
-      moveTree.addMove(4, 4, StoneColor.White);
+      moveTree.addMove({ x: 3, y: 3, color: StoneColor.Black }, []);
+      moveTree.addMove({ x: 4, y: 4, color: StoneColor.White }, []);
 
       expect(moveTree.previousStep()).toBe(true);
       expect(moveTree.pointer.currentMoveNumber).toBe(1);
@@ -38,8 +38,8 @@ describe('MoveTree', () => {
     });
 
     it('should go to next step', () => {
-      moveTree.addMove(3, 3, StoneColor.Black);
-      moveTree.addMove(4, 4, StoneColor.White);
+      moveTree.addMove({ x: 3, y: 3, color: StoneColor.Black }, []);
+      moveTree.addMove({ x: 4, y: 4, color: StoneColor.White }, []);
       moveTree.previousStep();
 
       expect(moveTree.nextStep()).toBe(true);
@@ -50,8 +50,8 @@ describe('MoveTree', () => {
     });
 
     it('should clear all moves', () => {
-      moveTree.addMove(3, 3, StoneColor.Black);
-      moveTree.addMove(4, 4, StoneColor.White);
+      moveTree.addMove({ x: 3, y: 3, color: StoneColor.Black }, []);
+      moveTree.addMove({ x: 4, y: 4, color: StoneColor.White }, []);
       moveTree.clear();
 
       expect(moveTree.pointer.currentMoveNumber).toBe(0);
@@ -62,7 +62,7 @@ describe('MoveTree', () => {
 
   describe('Node Navigation', () => {
     it('should find node by id', () => {
-      moveTree.addMove(3, 3, StoneColor.Black);
+      moveTree.addMove({ x: 3, y: 3, color: StoneColor.Black }, []);
       const node = moveTree.pointer.currentNode;
       const foundNode = moveTree.getNodeById(node.id);
 
@@ -70,8 +70,8 @@ describe('MoveTree', () => {
     });
 
     it('should switch to specific node', () => {
-      moveTree.addMove(3, 3, StoneColor.Black);
-      moveTree.addMove(4, 4, StoneColor.White);
+      moveTree.addMove({ x: 3, y: 3, color: StoneColor.Black }, []);
+      moveTree.addMove({ x: 4, y: 4, color: StoneColor.White }, []);
       const firstNode = moveTree.pointer.currentNode.parentNode;
 
       moveTree.switchToNode(firstNode!);

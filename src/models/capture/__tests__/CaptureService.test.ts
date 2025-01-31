@@ -1,6 +1,6 @@
 import { CaptureService } from '@/models/capture/CaptureService';
 import { StoneColor } from '@/constants/gameConfig';
-import { Point } from '@/types/point';
+import { Point, Stone } from '@/types/point';
 
 // Subclass for testing
 class TestCaptureService extends CaptureService {
@@ -64,12 +64,8 @@ describe('CaptureService', () => {
       board[1][0] = StoneColor.Black;
       board[1][2] = StoneColor.Black;
 
-      const movePoint: Point = { x: 1, y: 2 };
-      const result = captureService.getCapturedGroups(
-        movePoint,
-        StoneColor.Black,
-        board
-      );
+      const moveStone = { x: 1, y: 2, color: StoneColor.Black };
+      const result = captureService.getCapturedGroups(moveStone, board);
 
       expect(result).toHaveLength(1);
       expect(result[0].stones).toEqual([{ x: 1, y: 1 }]);
@@ -86,12 +82,8 @@ describe('CaptureService', () => {
       board[2][1] = StoneColor.Black;
       board[2][2] = StoneColor.Black;
 
-      const movePoint: Point = { x: 2, y: 2 };
-      const result = captureService.getCapturedGroups(
-        movePoint,
-        StoneColor.Black,
-        board
-      );
+      const moveStone: Stone = { x: 2, y: 2, color: StoneColor.Black };
+      const result = captureService.getCapturedGroups(moveStone, board);
 
       expect(result).toHaveLength(1);
       expect(result[0].stones).toContainEqual({ x: 1, y: 1 });
@@ -104,12 +96,8 @@ describe('CaptureService', () => {
       board[0][1] = StoneColor.Black;
       board[1][0] = StoneColor.Black;
 
-      const movePoint: Point = { x: 2, y: 1 };
-      const result = captureService.getCapturedGroups(
-        movePoint,
-        StoneColor.Black,
-        board
-      );
+      const moveStone: Stone = { x: 2, y: 1, color: StoneColor.Black };
+      const result = captureService.getCapturedGroups(moveStone, board);
 
       expect(result).toHaveLength(0);
     });
@@ -118,12 +106,8 @@ describe('CaptureService', () => {
       board[0][0] = StoneColor.White;
       board[1][0] = StoneColor.Black;
 
-      const movePoint: Point = { x: 1, y: 0 };
-      const result = captureService.getCapturedGroups(
-        movePoint,
-        StoneColor.Black,
-        board
-      );
+      const moveStone: Stone = { x: 1, y: 0, color: StoneColor.Black };
+      const result = captureService.getCapturedGroups(moveStone, board);
 
       expect(result).toHaveLength(1);
       expect(result[0].stones).toEqual([{ x: 0, y: 0 }]);
@@ -140,12 +124,8 @@ describe('CaptureService', () => {
       board[3][2] = StoneColor.Black;
       board[4][1] = StoneColor.Black;
 
-      const movePoint: Point = { x: 1, y: 2 };
-      const result = captureService.getCapturedGroups(
-        movePoint,
-        StoneColor.Black,
-        board
-      );
+      const moveStone: Stone = { x: 1, y: 2, color: StoneColor.Black };
+      const result = captureService.getCapturedGroups(moveStone, board);
 
       expect(result).toHaveLength(2);
       expect(result[0].stones).toContainEqual({ x: 1, y: 1 });
@@ -166,12 +146,8 @@ describe('CaptureService', () => {
       board[3][1] = StoneColor.Black;
       board[2][0] = StoneColor.Black;
 
-      const movePoint: Point = { x: 2, y: 0 };
-      const result = captureService.getCapturedGroups(
-        movePoint,
-        StoneColor.Black,
-        board
-      );
+      const moveStone: Stone = { x: 2, y: 0, color: StoneColor.Black };
+      const result = captureService.getCapturedGroups(moveStone, board);
 
       expect(result).toHaveLength(1);
       expect(result[0].stones).toHaveLength(4);
@@ -182,12 +158,8 @@ describe('CaptureService', () => {
     });
 
     it('should handle invalid coordinates gracefully', () => {
-      const invalidPoint: Point = { x: -1, y: 0 };
-      const result = captureService.getCapturedGroups(
-        invalidPoint,
-        StoneColor.Black,
-        board
-      );
+      const invalidStone: Stone = { x: -1, y: 0, color: StoneColor.Black };
+      const result = captureService.getCapturedGroups(invalidStone, board);
 
       expect(result).toHaveLength(0);
     });
@@ -201,22 +173,18 @@ describe('CaptureService', () => {
       board[0][boardSize - 1] = StoneColor.White;
       board[1][boardSize - 1] = StoneColor.Black;
 
-      const movePoint1: Point = { x: 1, y: 0 };
-      const result1 = captureService.getCapturedGroups(
-        movePoint1,
-        StoneColor.Black,
-        board
-      );
+      const moveStone1: Stone = { x: 1, y: 0, color: StoneColor.Black };
+      const result1 = captureService.getCapturedGroups(moveStone1, board);
 
       expect(result1).toHaveLength(1);
       expect(result1[0].stones).toEqual([{ x: 0, y: 0 }]);
 
-      const movePoint2: Point = { x: boardSize - 2, y: 0 };
-      const result2 = captureService.getCapturedGroups(
-        movePoint2,
-        StoneColor.Black,
-        board
-      );
+      const moveStone2: Stone = {
+        x: boardSize - 2,
+        y: 0,
+        color: StoneColor.Black,
+      };
+      const result2 = captureService.getCapturedGroups(moveStone2, board);
 
       expect(result2).toHaveLength(1);
       expect(result2[0].stones).toEqual([{ x: boardSize - 1, y: 0 }]);

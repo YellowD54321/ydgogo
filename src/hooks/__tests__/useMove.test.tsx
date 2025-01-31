@@ -125,6 +125,9 @@ describe('useMove', () => {
     // 放置兩顆棋子
     act(() => {
       result.current.handleClick({ x: 3, y: 3 });
+    });
+
+    act(() => {
       result.current.handleClick({ x: 4, y: 4 });
     });
 
@@ -148,6 +151,8 @@ describe('useMove', () => {
     // 放置兩顆棋子
     act(() => {
       result.current.handleClick({ x: 3, y: 3 }); // 黑
+    });
+    act(() => {
       result.current.handleClick({ x: 4, y: 4 }); // 白
     });
 
@@ -162,5 +167,79 @@ describe('useMove', () => {
     expect(result.current.boardState[3][3]).toBe(StoneColor.Black);
     expect(result.current.boardState[4][4]).toBe(StoneColor.Empty);
     expect(result.current.nextColor).toBe(StoneColor.White);
+  });
+
+  it('should update board state after capturing one stone', () => {
+    const { result } = renderHook(() => useMove(), { wrapper });
+
+    act(() => {
+      result.current.handleClick({ x: 1, y: 0 }); // black
+    });
+    act(() => {
+      result.current.handleClick({ x: 0, y: 0 }); // white
+    });
+
+    // capture
+    act(() => {
+      result.current.handleClick({ x: 0, y: 1 }); // black
+    });
+
+    expect(result.current.boardState[0][1]).toBe(StoneColor.Black);
+    expect(result.current.boardState[1][0]).toBe(StoneColor.Black);
+
+    expect(result.current.boardState[0][0]).toBe(StoneColor.Empty);
+  });
+
+  it('should update board state after capturing multiple stones', () => {
+    const { result } = renderHook(() => useMove(), { wrapper });
+
+    // put two white stones
+    act(() => {
+      result.current.handleClick({ x: 1, y: 0 }); // black
+    });
+    act(() => {
+      result.current.handleClick({ x: 1, y: 1 }); // white
+    });
+    act(() => {
+      result.current.handleClick({ x: 2, y: 0 }); // black
+    });
+    act(() => {
+      result.current.handleClick({ x: 2, y: 1 }); // white
+    });
+
+    // capture by surround the white stones
+    act(() => {
+      result.current.handleClick({ x: 0, y: 1 }); // black
+    });
+    act(() => {
+      result.current.handleClick({ x: 10, y: 10 }); // white, somewhere else
+    });
+    act(() => {
+      result.current.handleClick({ x: 3, y: 1 }); // black
+    });
+    act(() => {
+      result.current.handleClick({ x: 10, y: 11 }); // white, somewhere else
+    });
+    act(() => {
+      result.current.handleClick({ x: 1, y: 2 }); // black
+    });
+    act(() => {
+      result.current.handleClick({ x: 10, y: 12 }); // white, somewhere else
+    });
+    act(() => {
+      result.current.handleClick({ x: 2, y: 2 }); // black
+    });
+
+    // 檢查被吃掉的白子位置是否變為空
+    expect(result.current.boardState[1][1]).toBe(StoneColor.Empty); // left white
+    expect(result.current.boardState[1][2]).toBe(StoneColor.Empty); // right white
+
+    // 檢查圍住的黑子是否都在正確位置
+    expect(result.current.boardState[0][1]).toBe(StoneColor.Black);
+    expect(result.current.boardState[0][2]).toBe(StoneColor.Black);
+    expect(result.current.boardState[1][0]).toBe(StoneColor.Black);
+    expect(result.current.boardState[1][3]).toBe(StoneColor.Black);
+    expect(result.current.boardState[2][1]).toBe(StoneColor.Black);
+    expect(result.current.boardState[2][2]).toBe(StoneColor.Black);
   });
 });

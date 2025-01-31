@@ -1,4 +1,4 @@
-import { Point } from '@/types/point';
+import { Point, Stone } from '@/types/point';
 import { StoneColor } from '@/constants/gameConfig';
 import { Group, CaptureAnalysis } from '@/models/capture/types';
 
@@ -9,29 +9,33 @@ export class CaptureService {
     this.boardSize = boardSize;
   }
 
-  public getCapturedGroups(
-    movePoint: Point,
-    color: StoneColor,
-    board: StoneColor[][]
-  ): Group[] {
-    const oppositeColor =
-      color === StoneColor.Black ? StoneColor.White : StoneColor.Black;
-    const analysis = this.analyzeCapture(movePoint, oppositeColor, board);
+  protected getAdjacentPoints(point: Point): Point[] {
+    const { x, y } = point;
+    const adjacentPoints: Point[] = [];
+
+    if (y > 0) adjacentPoints.push({ x, y: y - 1 });
+    if (y < this.boardSize - 1) adjacentPoints.push({ x, y: y + 1 });
+    if (x > 0) adjacentPoints.push({ x: x - 1, y });
+    if (x < this.boardSize - 1) adjacentPoints.push({ x: x + 1, y });
+
+    return adjacentPoints;
+  }
+
+  public getCapturedGroups(stone: Stone, board: StoneColor[][]): Group[] {
+    const analysis = this.analyzeCapture(stone, board);
 
     return analysis.capturedGroups;
   }
 
-  private analyzeCapture(
-    movePoint: Point,
-    targetColor: StoneColor,
-    board: StoneColor[][]
-  ): CaptureAnalysis {
+  private analyzeCapture(stone: Stone, board: StoneColor[][]): CaptureAnalysis {
+    const targetColor =
+      stone.color === StoneColor.Black ? StoneColor.White : StoneColor.Black;
     const movedBoard = board.map((row) => [...row]);
-    // add movePoint stone
-    movedBoard[movePoint.y][movePoint.x] =
-      targetColor === StoneColor.Black ? StoneColor.White : StoneColor.Black;
 
-    const adjacentPoints = this.getAdjacentPoints(movePoint);
+    // add movePoint stone
+    movedBoard[stone.y][stone.x] = stone.color;
+
+    const adjacentPoints = this.getAdjacentPoints(stone);
     const enemyGroups = this.findEnemyGroups(
       adjacentPoints,
       targetColor,
@@ -47,18 +51,6 @@ export class CaptureService {
     };
   }
 
-  protected getAdjacentPoints(point: Point): Point[] {
-    const { x, y } = point;
-    const adjacentPoints: Point[] = [];
-
-    if (y > 0) adjacentPoints.push({ x, y: y - 1 });
-    if (y < this.boardSize - 1) adjacentPoints.push({ x, y: y + 1 });
-    if (x > 0) adjacentPoints.push({ x: x - 1, y });
-    if (x < this.boardSize - 1) adjacentPoints.push({ x: x + 1, y });
-
-    return adjacentPoints;
-  }
-
   private findEnemyGroups(
     points: Point[],
     targetColor: StoneColor,
@@ -69,10 +61,8 @@ export class CaptureService {
 
     points.forEach((point) => {
       const key = `${point.x},${point.y}`;
-      if (
-        !processedPoints.has(key) &&
-        board[point.y][point.x] === targetColor
-      ) {
+      const isEnemy = board[point.y][point.x] === targetColor;
+      if (!processedPoints.has(key) && isEnemy) {
         const group = this.findGroup(point, targetColor, board);
 
         // mark all stones in this group as processed

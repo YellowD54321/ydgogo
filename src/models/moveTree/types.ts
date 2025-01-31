@@ -1,5 +1,6 @@
 import { IMoveNode } from '@/models/moveNode/types';
-import { StoneColor } from '@/constants/gameConfig';
+import { Group } from '@/models/capture/types';
+import { Stone } from '@/types/point';
 
 export interface IGamePointer {
   currentNode: IMoveNode;
@@ -11,7 +12,7 @@ export interface IMoveTree {
   rootNode: IMoveNode;
   pointer: IGamePointer;
 
-  addMove(x: number, y: number, color: StoneColor): void;
+  addMove(stone: Stone, capturedGroups: Group[]): void;
   previousStep(): boolean;
   nextStep(): boolean;
   clear(): void;
