@@ -1,3 +1,4 @@
+import { Group } from '@/models/capture/types';
 import { IMoveNode, IMoveNodeProps } from './types';
 import { StoneColor } from '@/constants/gameConfig';
 
@@ -9,7 +10,7 @@ export class MoveNode implements IMoveNode {
   public readonly currentMoveNumber: number;
   public parentNode: IMoveNode | null;
   public childrenNodes: IMoveNode[];
-
+  public capturedGroups: Group[];
   constructor(props: IMoveNodeProps) {
     this.x = props.x;
     this.y = props.y;
@@ -20,6 +21,7 @@ export class MoveNode implements IMoveNode {
         ? props.parentNode.currentMoveNumber + 1
         : 0; // 根節點的 currentMoveNumber 為 0
     this.childrenNodes = [];
+    this.capturedGroups = props.capturedGroups || [];
 
     this.id = `${props.totalMoveNumber + 1}`;
 
