@@ -1,8 +1,11 @@
 import React, { useRef, useMemo } from 'react';
-import { StoneColor } from '@/constants/gameConfig';
+import { BOARD_CONFIG, StoneColor } from '@/constants/gameConfig';
 import { MoveTree } from '@/models/moveTree/MoveTree';
 import { IMoveNode } from '@/models/moveNode/types';
 import { MoveContext, Position } from './MoveContext';
+import { CaptureService } from '@/models/capture/CaptureService';
+import { Point } from '@/types/point';
+import { Group } from '@/models/capture/types';
 
 interface MoveProviderProps {
   boardSize: number;
@@ -14,6 +17,8 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
   children,
 }) => {
   const moveTreeRef = useRef<MoveTree>(new MoveTree());
+  // TODO: 重構為 Board 類別，封裝取得座標的方法，避免容易搞混 x, y 的順序
+  // x, y 的順序是 boardState[y][x]
   const [boardState, setBoardState] = React.useState<StoneColor[][]>(
     Array(boardSize)
       .fill(null)
@@ -40,17 +45,28 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
       .fill(null)
       .map(() => Array(boardSize).fill(StoneColor.Empty));
 
-    const path: IMoveNode[] = [];
+    const nodes: IMoveNode[] = [];
     let currentNode: IMoveNode | null = moveTreeRef.current.pointer.currentNode;
     while (currentNode) {
       if (currentNode.x >= 0 && currentNode.y >= 0) {
-        path.unshift(currentNode);
+        nodes.unshift(currentNode);
       }
       currentNode = currentNode.parentNode;
     }
-    path.forEach((node) => {
-      const { x, y, color } = node;
+
+    // 按照路徑順序放置棋子
+    nodes.forEach((node) => {
+      const { x, y, color, capturedGroups } = node;
+
       if (x >= 0 && y >= 0) {
+        // 先處理被吃掉的棋子
+        capturedGroups?.forEach((group: Group) => {
+          group.stones.forEach((point: Point) => {
+            newBoardState[point.y][point.x] = StoneColor.Empty;
+          });
+        });
+
+        // 再放置當前棋子
         newBoardState[y][x] = color;
       }
     });
@@ -65,11 +81,18 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
   const handleClick = (position: Position) => {
     const { x, y } = position;
 
+    // TODO: 檢查是否可以吃子
     if (boardState[y][x] !== StoneColor.Empty) {
       return;
     }
 
-    moveTreeRef.current.addMove(x, y, nextColor);
+    const captureService = new CaptureService(BOARD_CONFIG.SIZE);
+    const capturedGroups = captureService.getCapturedGroups(
+      { x, y, color: nextColor },
+      boardState
+    );
+
+    moveTreeRef.current.addMove({ x, y, color: nextColor }, capturedGroups);
 
     updateBoardState();
   };
