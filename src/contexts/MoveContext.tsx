@@ -2,11 +2,7 @@ import { createContext } from 'react';
 import { StoneColor } from '@/constants/gameConfig';
 import { MoveTree } from '@/models/moveTree/MoveTree';
 import { IMoveNode } from '@/models/moveNode/types';
-
-export interface Position {
-  x: number;
-  y: number;
-}
+import { Point } from '@/types/point';
 
 export interface ButtonStates {
   canClear: boolean;
@@ -17,11 +13,11 @@ export interface ButtonStates {
 export interface MoveContextType {
   boardState: StoneColor[][];
   moveTree: MoveTree;
-  hoverPosition: Position | null;
+  hoverPosition: Point | null;
   nextColor: StoneColor;
   buttonStates: ButtonStates;
-  handleMouseMove: (position: Position | null) => void;
-  handleClick: (position: Position) => void;
+  handleMouseMove: (position: Point | null) => void;
+  handleClick: (position: Point) => void;
   handlePreviousStep: () => void;
   handleNextStep: () => void;
   handleClear: () => void;

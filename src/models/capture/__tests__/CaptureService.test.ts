@@ -191,6 +191,38 @@ describe('CaptureService', () => {
     });
   });
 
+  describe('isValidPoint', () => {
+    it('should return false when x or y is null or undefined', () => {
+      const point = { x: null, y: 5, color: StoneColor.Black };
+      expect(captureService.isValidPoint(point, board)).toBe(false);
+
+      const point2 = { x: 5, y: null, color: StoneColor.Black };
+      expect(captureService.isValidPoint(point2, board)).toBe(false);
+
+      const point3 = { x: undefined, y: 5, color: StoneColor.Black };
+      expect(captureService.isValidPoint(point3, board)).toBe(false);
+
+      const point4 = { x: 5, y: undefined, color: StoneColor.Black };
+      expect(captureService.isValidPoint(point4, board)).toBe(false);
+    });
+
+    it('should return true for valid point', () => {
+      const point = { x: 5, y: 5, color: StoneColor.Black };
+      expect(captureService.isValidPoint(point, board)).toBe(true);
+    });
+
+    it('should return false for invalid point', () => {
+      const point = { x: -1, y: 5, color: StoneColor.Black };
+      expect(captureService.isValidPoint(point, board)).toBe(false);
+    });
+
+    it('should return false when there is a stone in the point', () => {
+      board[5][5] = StoneColor.Black;
+      const point = { x: 5, y: 5, color: StoneColor.Black };
+      expect(captureService.isValidPoint(point, board)).toBe(false);
+    });
+  });
+
   describe('isSuicideMove', () => {
     it('should identify legal move with liberties', () => {
       const moveStone: Stone = { x: 1, y: 1, color: StoneColor.Black };
