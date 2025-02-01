@@ -2,7 +2,7 @@ import React, { useRef, useMemo } from 'react';
 import { BOARD_CONFIG, StoneColor } from '@/constants/gameConfig';
 import { MoveTree } from '@/models/moveTree/MoveTree';
 import { IMoveNode } from '@/models/moveNode/types';
-import { MoveContext, Position } from './MoveContext';
+import { MoveContext } from './MoveContext';
 import { CaptureService } from '@/models/capture/CaptureService';
 import { Point } from '@/types/point';
 import { Group } from '@/models/capture/types';
@@ -24,9 +24,7 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
       .fill(null)
       .map(() => Array(boardSize).fill(StoneColor.Empty))
   );
-  const [hoverPosition, setHoverPosition] = React.useState<Position | null>(
-    null
-  );
+  const [hoverPosition, setHoverPosition] = React.useState<Point | null>(null);
 
   const buttonStates = useMemo(() => {
     const currentNode = moveTreeRef.current.pointer.currentNode;
@@ -74,19 +72,29 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
     setBoardState(newBoardState);
   };
 
-  const handleMouseMove = (position: Position | null) => {
-    setHoverPosition(position);
-  };
-
-  const handleClick = (position: Position) => {
-    const { x, y } = position;
-
-    // TODO: 檢查是否可以吃子
-    if (boardState[y][x] !== StoneColor.Empty) {
+  const handleMouseMove = (position: Point | null) => {
+    const captureService = new CaptureService(BOARD_CONFIG.SIZE);
+    if (
+      !captureService.isLegalMove(
+        { x: position?.x, y: position?.y, color: nextColor },
+        boardState
+      )
+    ) {
+      setHoverPosition(null);
       return;
     }
 
+    setHoverPosition(position);
+  };
+
+  const handleClick = (position: Point) => {
+    const { x, y } = position;
     const captureService = new CaptureService(BOARD_CONFIG.SIZE);
+
+    if (!captureService.isLegalMove({ x, y, color: nextColor }, boardState)) {
+      return;
+    }
+
     const capturedGroups = captureService.getCapturedGroups(
       { x, y, color: nextColor },
       boardState

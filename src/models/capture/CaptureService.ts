@@ -1,4 +1,4 @@
-import { Point, Stone } from '@/types/point';
+import { NullableStone, Point, Stone } from '@/types/point';
 import { StoneColor } from '@/constants/gameConfig';
 import { Group, CaptureAnalysis } from '@/models/capture/types';
 
@@ -121,5 +121,52 @@ export class CaptureService {
       }),
       color,
     };
+  }
+
+  public isValidPoint(
+    stone: NullableStone,
+    board: StoneColor[][]
+  ): stone is Stone {
+    const { x, y } = stone;
+    if (x === null || x === undefined || y === null || y === undefined) {
+      return false;
+    }
+
+    if (x < 0 || x >= this.boardSize || y < 0 || y >= this.boardSize) {
+      return false;
+    }
+
+    if (board[y][x] !== StoneColor.Empty) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public isSuicideMove(stone: Stone, board: StoneColor[][]): boolean {
+    // check if the move can capture opponent stones
+    const analysis = this.analyzeCapture(stone, board);
+    if (analysis.capturedGroups.length > 0) {
+      return false;
+    }
+
+    const movedBoard = board.map((row) => [...row]);
+    movedBoard[stone.y][stone.x] = stone.color;
+
+    // check if the move has no liberties
+    const group = this.findGroup(stone, stone.color, movedBoard);
+    return group.liberties.length === 0;
+  }
+
+  public isLegalMove(stone: NullableStone, board: StoneColor[][]): boolean {
+    if (!this.isValidPoint(stone, board)) {
+      return false;
+    }
+
+    if (this.isSuicideMove(stone, board)) {
+      return false;
+    }
+
+    return true;
   }
 }

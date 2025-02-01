@@ -8,8 +8,8 @@ import {
 } from '@/constants/gameConfig';
 import { useMove } from '@/hooks/useMove';
 import { MoveTree } from '@/models/moveTree/MoveTree';
-import { Position } from '@/contexts/MoveContext';
 import { MoveProvider } from '@/contexts/MoveProvider';
+import { Point } from '@/types/point';
 
 const mockUseMove = useMove as jest.MockedFunction<typeof useMove>;
 
@@ -418,7 +418,7 @@ describe('GoBoard', () => {
   describe('Board State', () => {
     test('updates board state after placing stone', () => {
       const currentState = EMPTY_BOARD.map((row) => [...row]);
-      const mockHandleClick = jest.fn().mockImplementation((pos: Position) => {
+      const mockHandleClick = jest.fn().mockImplementation((pos: Point) => {
         currentState[pos.y][pos.x] = StoneColor.Black;
       });
 
