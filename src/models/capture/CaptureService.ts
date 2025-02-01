@@ -122,4 +122,19 @@ export class CaptureService {
       color,
     };
   }
+
+  public isSuicideMove(stone: Stone, board: StoneColor[][]): boolean {
+    // check if the move can capture opponent stones
+    const analysis = this.analyzeCapture(stone, board);
+    if (analysis.capturedGroups.length > 0) {
+      return false;
+    }
+
+    const movedBoard = board.map((row) => [...row]);
+    movedBoard[stone.y][stone.x] = stone.color;
+
+    // check if the move has no liberties
+    const group = this.findGroup(stone, stone.color, movedBoard);
+    return group.liberties.length === 0;
+  }
 }

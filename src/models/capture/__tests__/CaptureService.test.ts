@@ -190,4 +190,62 @@ describe('CaptureService', () => {
       expect(result2[0].stones).toEqual([{ x: boardSize - 1, y: 0 }]);
     });
   });
+
+  describe('isSuicideMove', () => {
+    it('should identify legal move with liberties', () => {
+      const moveStone: Stone = { x: 1, y: 1, color: StoneColor.Black };
+      expect(captureService.isSuicideMove(moveStone, board)).toBe(false);
+    });
+
+    it('should identify simple suicide move when surrounded by opponent stones', () => {
+      board[0][1] = StoneColor.Black;
+      board[1][0] = StoneColor.Black;
+      board[1][2] = StoneColor.Black;
+      board[2][1] = StoneColor.Black;
+
+      const moveStone: Stone = { x: 1, y: 1, color: StoneColor.White };
+      expect(captureService.isSuicideMove(moveStone, board)).toBe(true);
+    });
+
+    it('should identify suicide move in corner', () => {
+      board[0][1] = StoneColor.Black;
+      board[1][0] = StoneColor.Black;
+
+      const moveStone: Stone = { x: 0, y: 0, color: StoneColor.White };
+      expect(captureService.isSuicideMove(moveStone, board)).toBe(true);
+    });
+
+    it('should identify suicide move on edge', () => {
+      board[0][0] = StoneColor.Black;
+      board[1][1] = StoneColor.Black;
+      board[2][0] = StoneColor.Black;
+
+      const moveStone: Stone = { x: 0, y: 1, color: StoneColor.White };
+      expect(captureService.isSuicideMove(moveStone, board)).toBe(true);
+    });
+
+    it('should identify suicide move when connecting with friendly stones', () => {
+      board[1][1] = StoneColor.White;
+      board[0][1] = StoneColor.Black;
+      board[0][2] = StoneColor.Black;
+      board[1][0] = StoneColor.Black;
+      board[1][3] = StoneColor.Black;
+      board[2][1] = StoneColor.Black;
+      board[2][2] = StoneColor.Black;
+
+      const moveStone: Stone = { x: 2, y: 1, color: StoneColor.White };
+      expect(captureService.isSuicideMove(moveStone, board)).toBe(true);
+    });
+
+    it('should identify legal move that captures opponent stones', () => {
+      board[0][0] = StoneColor.Black;
+      board[0][2] = StoneColor.Black;
+      board[1][1] = StoneColor.Black;
+
+      board[1][0] = StoneColor.White;
+
+      const moveStone: Stone = { x: 1, y: 0, color: StoneColor.White };
+      expect(captureService.isSuicideMove(moveStone, board)).toBe(false);
+    });
+  });
 });
