@@ -11,6 +11,7 @@ export class MoveNode implements IMoveNode {
   public parentNode: IMoveNode | null;
   public childrenNodes: IMoveNode[];
   public capturedGroups: Group[];
+
   constructor(props: IMoveNodeProps) {
     this.x = props.x;
     this.y = props.y;
