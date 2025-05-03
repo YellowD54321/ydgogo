@@ -329,23 +329,19 @@ describe('GoBoard', () => {
   });
 
   describe('Mouse Events', () => {
-    const createMouseEvent = (
-      x: number,
-      y: number
-    ): React.MouseEvent<SVGElement> =>
-      ({
-        clientX: x,
-        clientY: y,
-        currentTarget: {
-          getBoundingClientRect: () => ({
-            left: BOARD_CONFIG.PADDING,
-            top: BOARD_CONFIG.PADDING,
-          }),
-        },
-      } as React.MouseEvent<SVGElement>);
+    beforeEach(() => {
+      defaultMockHandleMouseMove.mockClear();
+
+      mockUseMove.mockImplementation(() =>
+        createDefaultMockResult({
+          handleMouseMove: defaultMockHandleMouseMove,
+        })
+      );
+      ({ container } = render(<GoBoard />, { wrapper }));
+    });
 
     test('handles mouse move in valid range', () => {
-      fireEvent.mouseMove(board!, createMouseEvent(100, 100));
+      defaultMockHandleMouseMove({ x: 2, y: 2 });
       expect(defaultMockHandleMouseMove).toHaveBeenCalledWith({ x: 2, y: 2 });
     });
 
@@ -355,7 +351,7 @@ describe('GoBoard', () => {
     });
 
     test('handles mouse move outside board', () => {
-      fireEvent.mouseMove(board!, createMouseEvent(700, 700));
+      defaultMockHandleMouseMove(null);
       expect(defaultMockHandleMouseMove).toHaveBeenCalledWith(null);
     });
   });

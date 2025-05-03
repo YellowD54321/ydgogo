@@ -8,7 +8,7 @@ const ActionButtons = () => {
   const { canClear, canPrevious, canNext } = buttonStates;
 
   return (
-    <div className='flex gap-2'>
+    <div className='fixed z-10 flex gap-2 p-2 transform -translate-x-1/2 bg-white rounded-lg shadow-md bottom-4 left-1/2'>
       <Tooltip title='Clear'>
         <span>
           <IconButton onClick={handleClear} disabled={!canClear}>
