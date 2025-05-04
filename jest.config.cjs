@@ -6,5 +6,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  testRunner: 'jest-circus/runner'
-}; 
+  testRunner: 'jest-circus/runner',
+  collectCoverageFrom: ['src/**/*.{js,ts,jsx,tsx}'],
+  coverageReporters: ['text', 'lcov', 'json'],
+  coveragePathIgnorePatterns: ['node_modules', 'dist', 'build', 'public', 'src/main.tsx', 'src/App.tsx', 'src/vite-env.d.ts']
+};
