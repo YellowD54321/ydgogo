@@ -19,4 +19,6 @@ export interface IMoveTree {
 
   getNodeById(id: string): IMoveNode | null;
   switchToNode(node: IMoveNode): void;
+
+  serialize(): string;
 }

@@ -1,5 +1,6 @@
 import { Group } from '@/models/capture/types';
 import { Stone } from '@/types/point';
+import { ISerializedMoveNode } from '@/models/serialize/types';
 
 export interface IMoveNodeProps extends Stone {
   parentNode: IMoveNode | null;
@@ -16,4 +17,5 @@ export interface IMoveNode extends Omit<IMoveNodeProps, 'totalMoveNumber'> {
   setCurrentMoveNumber(moveNumber: number): void;
   addChild(node: IMoveNode): void;
   removeChild(node: IMoveNode): void;
+  serialize(): ISerializedMoveNode;
 }
