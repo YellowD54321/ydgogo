@@ -5,7 +5,8 @@ import { StoneColor } from '@/constants/gameConfig';
 import { Group } from '@/models/capture/types';
 import { Stone } from '@/types/point';
 
-const DEFAULT_TOTAL_MOVE_NUMBER = 0;
+export const DEFAULT_TOTAL_MOVE_NUMBER = 0;
+export const ROOT_NODE_ID = 'ROOT';
 
 export class MoveTree implements IMoveTree {
   public rootNode: IMoveNode;
@@ -17,8 +18,10 @@ export class MoveTree implements IMoveTree {
       y: -1,
       color: StoneColor.Empty,
       parentNode: null,
-      totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER, // id 為 totalMoveNumber + 1，將根節點的 id 設為 1
+      totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER, // id 為 totalMoveNumber + 1
     });
+
+    this.rootNode.setId(ROOT_NODE_ID); // 額外設定根節點的 id
 
     this.pointer = {
       currentNode: this.rootNode,
@@ -81,12 +84,14 @@ export class MoveTree implements IMoveTree {
       y: -1,
       color: StoneColor.Empty,
       parentNode: null,
-      totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER - 1,
+      totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER,
     });
+
+    this.rootNode.setId(ROOT_NODE_ID);
 
     this.pointer = {
       currentNode: this.rootNode,
-      currentMoveNumber: 0,
+      currentMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER,
       totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER,
     };
   }

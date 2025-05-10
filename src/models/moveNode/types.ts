@@ -8,10 +8,12 @@ export interface IMoveNodeProps extends Stone {
 }
 
 export interface IMoveNode extends Omit<IMoveNodeProps, 'totalMoveNumber'> {
-  id: string;
+  readonly id: string;
   parentNode: IMoveNode | null;
-  currentMoveNumber: number;
+  readonly currentMoveNumber: number;
   childrenNodes: IMoveNode[];
+  setId(id: string): void;
+  setCurrentMoveNumber(moveNumber: number): void;
   addChild(node: IMoveNode): void;
   removeChild(node: IMoveNode): void;
 }
