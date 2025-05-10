@@ -4,8 +4,13 @@ import { IGamePointer, IMoveTree } from './types';
 import { StoneColor } from '@/constants/gameConfig';
 import { Group } from '@/models/capture/types';
 import { Stone } from '@/types/point';
+import {
+  ISerializedMoveNode,
+  ISerializedMoveTree,
+} from '@/models/serialize/types';
 
-const DEFAULT_TOTAL_MOVE_NUMBER = 0;
+export const DEFAULT_TOTAL_MOVE_NUMBER = 0;
+export const ROOT_NODE_ID = 'ROOT';
 
 export class MoveTree implements IMoveTree {
   public rootNode: IMoveNode;
@@ -17,8 +22,10 @@ export class MoveTree implements IMoveTree {
       y: -1,
       color: StoneColor.Empty,
       parentNode: null,
-      totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER, // id 為 totalMoveNumber + 1，將根節點的 id 設為 1
+      totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER, // id 為 totalMoveNumber + 1
     });
+
+    this.rootNode.setId(ROOT_NODE_ID); // 額外設定根節點的 id
 
     this.pointer = {
       currentNode: this.rootNode,
@@ -81,12 +88,14 @@ export class MoveTree implements IMoveTree {
       y: -1,
       color: StoneColor.Empty,
       parentNode: null,
-      totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER - 1,
+      totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER,
     });
+
+    this.rootNode.setId(ROOT_NODE_ID);
 
     this.pointer = {
       currentNode: this.rootNode,
-      currentMoveNumber: 0,
+      currentMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER,
       totalMoveNumber: DEFAULT_TOTAL_MOVE_NUMBER,
     };
   }
@@ -116,5 +125,69 @@ export class MoveTree implements IMoveTree {
     };
 
     return findNode(this.rootNode);
+  }
+
+  /**
+   * Serialize the move tree to a JSON string
+   * @returns A JSON string representation of the move tree
+   */
+  public serialize(): string {
+    const nodesMap: Record<string, ISerializedMoveNode> = {};
+
+    const collectNodes = (node: IMoveNode) => {
+      nodesMap[node.id] = node.serialize();
+      node.childrenNodes.forEach((child) => collectNodes(child));
+    };
+
+    collectNodes(this.rootNode);
+
+    const serializedTree: ISerializedMoveTree = {
+      nodes: nodesMap,
+      rootNodeId: this.rootNode.id,
+      pointer: {
+        currentNodeId: this.pointer.currentNode.id,
+        currentMoveNumber: this.pointer.currentMoveNumber,
+        totalMoveNumber: this.pointer.totalMoveNumber,
+      },
+    };
+
+    return JSON.stringify(serializedTree);
+  }
+
+  /**
+   * Create a move tree from a serialized JSON string
+   * @param serializedData The JSON string representation of a move tree
+   * @returns A new MoveTree instance
+   */
+  public static deserialize(serializedData: string): MoveTree {
+    const data: ISerializedMoveTree = JSON.parse(serializedData);
+    const moveTree = new MoveTree();
+    const nodesMap: Record<string, IMoveNode> = {};
+
+    Object.entries(data.nodes).forEach(([id, nodeData]) => {
+      const node = MoveNode.deserialize(nodeData);
+      nodesMap[id] = node;
+    });
+
+    Object.entries(data.nodes).forEach(([id, nodeData]) => {
+      const node = nodesMap[id];
+
+      if (nodeData.parentId && nodesMap[nodeData.parentId]) {
+        node.parentNode = nodesMap[nodeData.parentId];
+
+        if (!node.parentNode.childrenNodes.some((child) => child.id === id)) {
+          node.parentNode.childrenNodes.push(node);
+        }
+      }
+    });
+
+    moveTree.rootNode = nodesMap[data.rootNodeId];
+    moveTree.pointer = {
+      currentNode: nodesMap[data.pointer.currentNodeId],
+      currentMoveNumber: data.pointer.currentMoveNumber,
+      totalMoveNumber: data.pointer.totalMoveNumber,
+    };
+
+    return moveTree;
   }
 }
