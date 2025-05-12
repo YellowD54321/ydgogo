@@ -8,10 +8,18 @@ import {
 import { ISerializedMoveTree } from '@/models/serialize/types';
 
 export class DraftService {
+  private static instance: DraftService;
   private dbService: IndexedDBService;
 
-  constructor() {
+  private constructor() {
     this.dbService = new IndexedDBService();
+  }
+
+  public static getInstance(): DraftService {
+    if (!DraftService.instance) {
+      DraftService.instance = new DraftService();
+    }
+    return DraftService.instance;
   }
 
   public async init(): Promise<void> {

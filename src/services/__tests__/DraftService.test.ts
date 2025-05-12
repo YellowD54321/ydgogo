@@ -12,6 +12,11 @@ declare global {
   }
 }
 
+const resetDraftServiceInstance = () => {
+  // @ts-expect-error - Accessing private property for testing purposes
+  DraftService.instance = undefined;
+};
+
 jest.mock('@/models/moveTree/MoveTree', () => {
   return {
     MoveTree: {
@@ -25,13 +30,12 @@ jest.mock('@/models/moveTree/MoveTree', () => {
 });
 
 describe('DraftService', () => {
-  let draftService: DraftService;
   let mockMoveTree: IMoveTree;
 
   beforeEach(async () => {
     global.indexedDB = new IDBFactory();
-    draftService = new DraftService();
-    await draftService.init();
+    resetDraftServiceInstance();
+    await DraftService.getInstance().init();
 
     mockMoveTree = {
       serialize: jest.fn(() =>
@@ -60,11 +64,13 @@ describe('DraftService', () => {
   });
 
   test('should be able to save a draft and return ID', async () => {
+    const draftService = DraftService.getInstance();
     const id = await draftService.saveDraft(mockMoveTree, 'Test Draft');
     expect(id).toBeTruthy();
   });
 
   test('should be able to load a draft by ID', async () => {
+    const draftService = DraftService.getInstance();
     const id = await draftService.saveDraft(mockMoveTree, 'Test Draft');
     const loadedMoveTree = await draftService.loadDraft(id);
 
@@ -73,6 +79,7 @@ describe('DraftService', () => {
   });
 
   test('should be able to get all draft metadata', async () => {
+    const draftService = DraftService.getInstance();
     await draftService.saveDraft(mockMoveTree, 'Draft 1');
     await draftService.saveDraft(mockMoveTree, 'Draft 2');
 
@@ -81,6 +88,7 @@ describe('DraftService', () => {
   });
 
   test('should be able to delete a draft', async () => {
+    const draftService = DraftService.getInstance();
     const id = await draftService.saveDraft(mockMoveTree, 'Test Draft');
     await draftService.deleteDraft(id);
 
@@ -89,6 +97,7 @@ describe('DraftService', () => {
   });
 
   test('loadDraft should return null when draft does not exist', async () => {
+    const draftService = DraftService.getInstance();
     const loadedMoveTree = await draftService.loadDraft('non-existent-id');
     expect(loadedMoveTree).toBeNull();
   });
