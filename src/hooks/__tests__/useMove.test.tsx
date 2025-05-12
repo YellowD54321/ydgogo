@@ -2,13 +2,53 @@ import { renderHook, act } from '@testing-library/react';
 import { useMove } from '../useMove';
 import { StoneColor } from '@/constants/gameConfig';
 import { MoveProvider } from '@/contexts/MoveProvider';
+import { ServiceContext, ServiceContextType } from '@/contexts/ServiceContext';
+import { DraftService } from '@/services/DraftService';
+
+const mockInitFn = jest.fn().mockResolvedValue(undefined);
+const mockSaveDraftFn = jest.fn().mockResolvedValue('test-draft-id');
+const mockLoadDraftFn = jest.fn().mockResolvedValue(null);
+const mockGetAllDraftsFn = jest.fn().mockResolvedValue([]);
+const mockDeleteDraftFn = jest.fn().mockResolvedValue(undefined);
+
+jest.mock('@/services/DraftService', () => ({
+  DraftService: {
+    getInstance: jest.fn(() => ({
+      init: mockInitFn,
+      saveDraft: mockSaveDraftFn,
+      loadDraft: mockLoadDraftFn,
+      getAllDrafts: mockGetAllDraftsFn,
+      deleteDraft: mockDeleteDraftFn,
+    })),
+  },
+}));
+
+const MockServiceProvider = ({ children }: { children: React.ReactNode }) => {
+  const draftService = DraftService.getInstance();
+  const mockServiceContext: ServiceContextType = {
+    draftService,
+    isInitialized: true,
+  };
+
+  return (
+    <ServiceContext.Provider value={mockServiceContext}>
+      {children}
+    </ServiceContext.Provider>
+  );
+};
 
 describe('useMove', () => {
   const BOARD_SIZE = 19;
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <MoveProvider boardSize={BOARD_SIZE}>{children}</MoveProvider>
+    <MockServiceProvider>
+      <MoveProvider boardSize={BOARD_SIZE}>{children}</MoveProvider>
+    </MockServiceProvider>
   );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should initialize with empty board', () => {
     const { result } = renderHook(() => useMove(), { wrapper });
@@ -241,5 +281,43 @@ describe('useMove', () => {
     expect(result.current.boardState[1][3]).toBe(StoneColor.Black);
     expect(result.current.boardState[2][1]).toBe(StoneColor.Black);
     expect(result.current.boardState[2][2]).toBe(StoneColor.Black);
+  });
+
+  describe('Auto Save Draft', () => {
+    it('should auto save draft after placing a stone', async () => {
+      const { result } = renderHook(() => useMove(), { wrapper });
+
+      expect(mockSaveDraftFn).not.toHaveBeenCalled();
+
+      await act(async () => {
+        result.current.handleClick({ x: 3, y: 3 });
+        // Wait for the next event loop to let useEffect complete
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      expect(mockSaveDraftFn).toHaveBeenCalled();
+    });
+
+    it('should use the same ID for subsequent auto saves', async () => {
+      const { result } = renderHook(() => useMove(), { wrapper });
+
+      await act(async () => {
+        result.current.handleClick({ x: 3, y: 3 });
+        // Wait for the next event loop to let useEffect complete
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      mockSaveDraftFn.mockClear();
+
+      await act(async () => {
+        result.current.handleClick({ x: 4, y: 4 });
+        // Wait for the next event loop to let useEffect complete
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      expect(mockSaveDraftFn).toHaveBeenCalled();
+
+      expect(mockSaveDraftFn.mock.calls[0][2]).toBe('test-draft-id');
+    });
   });
 });
