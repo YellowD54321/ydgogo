@@ -6,6 +6,7 @@ import { MoveContext } from './MoveContext';
 import { CaptureService } from '@/models/capture/CaptureService';
 import { Point } from '@/types/point';
 import { Group } from '@/models/capture/types';
+import { useService } from '@/hooks/useService';
 
 interface MoveProviderProps {
   boardSize: number;
@@ -17,6 +18,9 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
   children,
 }) => {
   const moveTreeRef = useRef<MoveTree>(new MoveTree());
+  const autoSaveDraftIdRef = useRef<string>('');
+  const { draftService, isInitialized } = useService();
+
   // TODO: 重構為 Board 類別，封裝取得座標的方法，避免容易搞混 x, y 的順序
   // x, y 的順序是 boardState[y][x]
   const [boardState, setBoardState] = React.useState<StoneColor[][]>(
@@ -37,6 +41,21 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
     // 這邊以 boardState 來觸發 re-render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardState]);
+
+  const saveDraft = async () => {
+    if (!isInitialized) return;
+
+    try {
+      const draftId = await draftService.saveDraft(
+        moveTreeRef.current,
+        'New Game',
+        autoSaveDraftIdRef.current
+      );
+      autoSaveDraftIdRef.current = draftId;
+    } catch (error) {
+      console.error('Save draft failed:', error);
+    }
+  };
 
   const updateBoardState = () => {
     const newBoardState = Array(boardSize)
@@ -103,6 +122,8 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
     moveTreeRef.current.addMove({ x, y, color: nextColor }, capturedGroups);
 
     updateBoardState();
+
+    saveDraft();
   };
 
   const handlePreviousStep = () => {
