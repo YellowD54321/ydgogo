@@ -10,10 +10,11 @@ import { useMove } from '@/hooks/useMove';
 import { MoveTree } from '@/models/moveTree/MoveTree';
 import { MoveProvider } from '@/contexts/MoveProvider';
 import { Point } from '@/types/point';
+import { ServiceContext, ServiceContextType } from '@/contexts/ServiceContext';
+import { DraftService } from '@/services/DraftService';
 
 const mockUseMove = useMove as jest.MockedFunction<typeof useMove>;
 
-// 常用測試數據
 const EMPTY_BOARD = Array(BOARD_CONFIG.SIZE)
   .fill(null)
   .map(() => Array(BOARD_CONFIG.SIZE).fill(StoneColor.Empty));
@@ -43,15 +44,43 @@ jest.mock('../../hooks/useMove', () => ({
   useMove: jest.fn(() => createDefaultMockResult()),
 }));
 
+const mockInitFn = jest.fn().mockResolvedValue(undefined);
+const mockSaveDraftFn = jest.fn().mockResolvedValue('test-draft-id');
+const mockLoadDraftFn = jest.fn().mockResolvedValue(null);
+const mockGetAllDraftsFn = jest.fn().mockResolvedValue([]);
+const mockDeleteDraftFn = jest.fn().mockResolvedValue(undefined);
+
+jest.mock('@/services/DraftService', () => ({
+  DraftService: {
+    getInstance: jest.fn(() => ({
+      init: mockInitFn,
+      saveDraft: mockSaveDraftFn,
+      loadDraft: mockLoadDraftFn,
+      getAllDrafts: mockGetAllDraftsFn,
+      deleteDraft: mockDeleteDraftFn,
+    })),
+  },
+}));
+
 describe('GoBoard', () => {
   let container: HTMLElement;
   let board: Element | null;
   const defaultMockHandleMouseMove = jest.fn();
   const defaultMockHandleClick = jest.fn();
 
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <MoveProvider boardSize={BOARD_CONFIG.SIZE}>{children}</MoveProvider>
-  );
+  const wrapper = ({ children }: { children: React.ReactNode }) => {
+    const draftService = DraftService.getInstance();
+    const mockServiceContext: ServiceContextType = {
+      draftService,
+      isInitialized: true,
+    };
+
+    return (
+      <ServiceContext.Provider value={mockServiceContext}>
+        <MoveProvider boardSize={BOARD_CONFIG.SIZE}>{children}</MoveProvider>
+      </ServiceContext.Provider>
+    );
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
