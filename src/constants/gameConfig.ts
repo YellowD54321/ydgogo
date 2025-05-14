@@ -34,3 +34,8 @@ export enum StoneColor {
   Black = 'black',
   White = 'white',
 }
+
+export const DRAFT_CONFIG = {
+  NEW_GAME_ID: 'new-game-draft',
+  NEW_GAME_TITLE: 'New Game',
+} as const;

@@ -1,4 +1,12 @@
-import React, { useRef, useMemo } from 'react';
+import {
+  useRef,
+  useMemo,
+  useCallback,
+  useEffect,
+  useState,
+  ReactNode,
+  FC,
+} from 'react';
 import { BOARD_CONFIG, StoneColor } from '@/constants/gameConfig';
 import { MoveTree } from '@/models/moveTree/MoveTree';
 import { IMoveNode } from '@/models/moveNode/types';
@@ -10,25 +18,29 @@ import { useService } from '@/hooks/useService';
 
 interface MoveProviderProps {
   boardSize: number;
-  children: React.ReactNode;
+  initialMoveTree?: MoveTree | null;
+  initialDraftId?: string | null;
+  children: ReactNode;
 }
 
-export const MoveProvider: React.FC<MoveProviderProps> = ({
+export const MoveProvider: FC<MoveProviderProps> = ({
   boardSize,
+  initialMoveTree = null,
+  initialDraftId = null,
   children,
 }) => {
-  const moveTreeRef = useRef<MoveTree>(new MoveTree());
-  const autoSaveDraftIdRef = useRef<string>('');
+  const moveTreeRef = useRef<MoveTree>(initialMoveTree || new MoveTree());
+  const autoSaveDraftIdRef = useRef<string>(initialDraftId || '');
   const { draftService, isInitialized } = useService();
 
   // TODO: 重構為 Board 類別，封裝取得座標的方法，避免容易搞混 x, y 的順序
   // x, y 的順序是 boardState[y][x]
-  const [boardState, setBoardState] = React.useState<StoneColor[][]>(
+  const [boardState, setBoardState] = useState<StoneColor[][]>(
     Array(boardSize)
       .fill(null)
       .map(() => Array(boardSize).fill(StoneColor.Empty))
   );
-  const [hoverPosition, setHoverPosition] = React.useState<Point | null>(null);
+  const [hoverPosition, setHoverPosition] = useState<Point | null>(null);
 
   const buttonStates = useMemo(() => {
     const currentNode = moveTreeRef.current.pointer.currentNode;
@@ -57,7 +69,7 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
     }
   };
 
-  const updateBoardState = () => {
+  const updateBoardState = useCallback(() => {
     const newBoardState = Array(boardSize)
       .fill(null)
       .map(() => Array(boardSize).fill(StoneColor.Empty));
@@ -89,7 +101,13 @@ export const MoveProvider: React.FC<MoveProviderProps> = ({
     });
 
     setBoardState(newBoardState);
-  };
+  }, [boardSize]);
+
+  useEffect(() => {
+    if (initialMoveTree) {
+      updateBoardState();
+    }
+  }, [initialMoveTree, updateBoardState]);
 
   const handleMouseMove = (position: Point | null) => {
     const captureService = new CaptureService(BOARD_CONFIG.SIZE);
