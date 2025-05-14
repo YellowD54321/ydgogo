@@ -33,7 +33,6 @@ export class DraftService {
   ): Promise<string> {
     const serializedData = moveTree.serialize();
     const gameTree: ISerializedMoveTree = JSON.parse(serializedData);
-
     const draft: IDraft = {
       id: id || '',
       title,
