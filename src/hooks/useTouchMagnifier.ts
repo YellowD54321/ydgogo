@@ -15,6 +15,7 @@ interface UseTouchMagnifierProps {
 interface TouchState {
   isTouching: boolean;
   touchPosition: Point | null;
+  fingerPosition: { x: number; y: number } | null;
 }
 
 export const useTouchMagnifier = ({
@@ -30,6 +31,7 @@ export const useTouchMagnifier = ({
   const [touchState, setTouchState] = useState<TouchState>({
     isTouching: false,
     touchPosition: null,
+    fingerPosition: null,
   });
 
   // 觸控座標轉換函數
@@ -65,10 +67,13 @@ export const useTouchMagnifier = ({
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<SVGElement>) => {
       const position = getTouchPosition(e);
-      if (position) {
+      const touch = e.touches[0];
+
+      if (position && touch) {
         setTouchState({
           isTouching: true,
           touchPosition: position,
+          fingerPosition: { x: touch.clientX, y: touch.clientY },
         });
 
         // 更新位置以顯示預覽
@@ -86,11 +91,15 @@ export const useTouchMagnifier = ({
       if (!touchState.isTouching) return;
 
       const position = getTouchPosition(e);
+      const touch = e.touches[0];
 
-      // 更新觸控位置
+      // 更新觸控位置和手指位置
       setTouchState((prev) => ({
         ...prev,
         touchPosition: position,
+        fingerPosition: touch
+          ? { x: touch.clientX, y: touch.clientY }
+          : prev.fingerPosition,
       }));
 
       // 更新預覽位置
@@ -109,25 +118,30 @@ export const useTouchMagnifier = ({
       if (touchState.isTouching && touchState.touchPosition) {
         const position = getTouchPosition(e);
 
-        if (!position) return;
-
         // 檢查位置是否合法
-        if (!isValidPosition(position)) return;
-
-        onConfirmPosition(position);
-        console.log('Touch End - Placing stone at:', position);
+        if (position && isValidPosition(position)) {
+          onConfirmPosition(position);
+          console.log('Touch End - Placing stone at:', position);
+        }
       }
 
       // 重置觸控狀態
       setTouchState({
         isTouching: false,
         touchPosition: null,
+        fingerPosition: null,
       });
 
       // 清除預覽
       onPositionChange(null);
     },
-    [touchState, isValidPosition, onConfirmPosition, onPositionChange]
+    [
+      touchState,
+      isValidPosition,
+      onConfirmPosition,
+      onPositionChange,
+      getTouchPosition,
+    ]
   );
 
   return {
