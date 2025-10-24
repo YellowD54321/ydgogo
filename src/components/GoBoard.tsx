@@ -5,10 +5,25 @@ import {
   StoneColor,
 } from '@/constants/gameConfig';
 import { useMove } from '@/hooks/useMove';
+import { useTouchMagnifier } from '@/hooks/useTouchMagnifier';
+import MagnifierOverlay from '@/components/MagnifierOverlay';
 
 const GoBoard: FC = () => {
   const { boardState, hoverPosition, handleMouseMove, handleClick, nextColor } =
     useMove();
+
+  // 觸控放大鏡功能
+  const { touchState, touchHandlers } = useTouchMagnifier({
+    boardSize: BOARD_CONFIG.SIZE,
+    cellSize: BOARD_CONFIG.CELL_SIZE,
+    padding: BOARD_CONFIG.PADDING,
+    boardWidth: BOARD_DIMENSIONS.WIDTH,
+    boardHeight: BOARD_DIMENSIONS.HEIGHT,
+    onPositionChange: handleMouseMove,
+    onConfirmPosition: handleClick,
+    isValidPosition: (position) =>
+      boardState[position.y][position.x] === StoneColor.Empty,
+  });
 
   const handleMouseMoveOnBoard = (e: React.MouseEvent<SVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -45,106 +60,126 @@ const GoBoard: FC = () => {
   };
 
   return (
-    <div className='max-w-full max-h-full overflow-hidden'>
-      <svg
-        width={BOARD_DIMENSIONS.WIDTH}
-        height={BOARD_DIMENSIONS.HEIGHT}
-        viewBox={`0 0 ${BOARD_DIMENSIONS.WIDTH} ${BOARD_DIMENSIONS.HEIGHT}`}
-        preserveAspectRatio='xMidYMid meet'
-        className='h-auto max-w-full'
-        onMouseMove={handleMouseMoveOnBoard}
-        onMouseLeave={() => handleMouseMove(null)}
-        onClick={handleBoardClick}
-      >
-        {/* 木頭底色 */}
-        <rect
-          x='0'
-          y='0'
-          width='100%'
-          height='100%'
-          fill={BOARD_CONFIG.COLORS.BOARD}
-        />
-
-        {/* 棋盤格線 */}
-        {Array.from({ length: BOARD_CONFIG.SIZE }).map((_, i) => (
-          <g key={i}>
-            <line
-              x1={BOARD_CONFIG.PADDING + i * BOARD_CONFIG.CELL_SIZE}
-              y1={BOARD_CONFIG.PADDING}
-              x2={BOARD_CONFIG.PADDING + i * BOARD_CONFIG.CELL_SIZE}
-              y2={
-                BOARD_CONFIG.PADDING +
-                (BOARD_CONFIG.SIZE - 1) * BOARD_CONFIG.CELL_SIZE
-              }
-              stroke={BOARD_CONFIG.COLORS.LINE}
-              strokeWidth='0.8'
-            />
-            <line
-              x1={BOARD_CONFIG.PADDING}
-              y1={BOARD_CONFIG.PADDING + i * BOARD_CONFIG.CELL_SIZE}
-              x2={
-                BOARD_CONFIG.PADDING +
-                (BOARD_CONFIG.SIZE - 1) * BOARD_CONFIG.CELL_SIZE
-              }
-              y2={BOARD_CONFIG.PADDING + i * BOARD_CONFIG.CELL_SIZE}
-              stroke={BOARD_CONFIG.COLORS.LINE}
-              strokeWidth='0.8'
-            />
-          </g>
-        ))}
-
-        {/* 星位 */}
-        {BOARD_CONFIG.STAR_POINTS.map((point, index) => (
-          <circle
-            key={`star-${index}`}
-            cx={BOARD_CONFIG.PADDING + point.x * BOARD_CONFIG.CELL_SIZE}
-            cy={BOARD_CONFIG.PADDING + point.y * BOARD_CONFIG.CELL_SIZE}
-            r={3}
-            fill={BOARD_CONFIG.COLORS.STAR}
+    <>
+      <div className='overflow-hidden max-w-full max-h-full'>
+        <svg
+          width={BOARD_DIMENSIONS.WIDTH}
+          height={BOARD_DIMENSIONS.HEIGHT}
+          viewBox={`0 0 ${BOARD_DIMENSIONS.WIDTH} ${BOARD_DIMENSIONS.HEIGHT}`}
+          preserveAspectRatio='xMidYMid meet'
+          className='max-w-full h-auto'
+          style={{ touchAction: 'none' }}
+          onMouseMove={handleMouseMoveOnBoard}
+          onMouseLeave={() => handleMouseMove(null)}
+          onClick={handleBoardClick}
+          {...touchHandlers}
+        >
+          {/* 木頭底色 */}
+          <rect
+            x='0'
+            y='0'
+            width='100%'
+            height='100%'
+            fill={BOARD_CONFIG.COLORS.BOARD}
           />
-        ))}
 
-        {/* 繪製棋子 */}
-        {boardState.map((row, y) =>
-          row.map((cell, x) => {
-            if (cell === StoneColor.Empty) return null;
-            const stoneColor = cell === StoneColor.Black ? 'black' : 'white';
-            const strokeColor = cell === StoneColor.White ? 'black' : 'none';
-            return (
-              <circle
-                key={`${x}-${y}`}
-                cx={BOARD_CONFIG.PADDING + x * BOARD_CONFIG.CELL_SIZE}
-                cy={BOARD_CONFIG.PADDING + y * BOARD_CONFIG.CELL_SIZE}
-                r={BOARD_CONFIG.CELL_SIZE / 2 - 1}
-                fill={stoneColor}
-                stroke={strokeColor}
+          {/* 棋盤格線 */}
+          {Array.from({ length: BOARD_CONFIG.SIZE }).map((_, i) => (
+            <g key={i}>
+              <line
+                x1={BOARD_CONFIG.PADDING + i * BOARD_CONFIG.CELL_SIZE}
+                y1={BOARD_CONFIG.PADDING}
+                x2={BOARD_CONFIG.PADDING + i * BOARD_CONFIG.CELL_SIZE}
+                y2={
+                  BOARD_CONFIG.PADDING +
+                  (BOARD_CONFIG.SIZE - 1) * BOARD_CONFIG.CELL_SIZE
+                }
+                stroke={BOARD_CONFIG.COLORS.LINE}
+                strokeWidth='0.8'
               />
-            );
-          })
-        )}
+              <line
+                x1={BOARD_CONFIG.PADDING}
+                y1={BOARD_CONFIG.PADDING + i * BOARD_CONFIG.CELL_SIZE}
+                x2={
+                  BOARD_CONFIG.PADDING +
+                  (BOARD_CONFIG.SIZE - 1) * BOARD_CONFIG.CELL_SIZE
+                }
+                y2={BOARD_CONFIG.PADDING + i * BOARD_CONFIG.CELL_SIZE}
+                stroke={BOARD_CONFIG.COLORS.LINE}
+                strokeWidth='0.8'
+              />
+            </g>
+          ))}
 
-        {/* 預覽棋子 */}
-        {hoverPosition &&
-          hoverPosition.x >= 0 &&
-          hoverPosition.x < BOARD_CONFIG.SIZE &&
-          hoverPosition.y >= 0 &&
-          hoverPosition.y < BOARD_CONFIG.SIZE &&
-          boardState[hoverPosition.y][hoverPosition.x] === StoneColor.Empty && (
+          {/* 星位 */}
+          {BOARD_CONFIG.STAR_POINTS.map((point, index) => (
             <circle
-              cx={
-                BOARD_CONFIG.PADDING + hoverPosition.x * BOARD_CONFIG.CELL_SIZE
-              }
-              cy={
-                BOARD_CONFIG.PADDING + hoverPosition.y * BOARD_CONFIG.CELL_SIZE
-              }
-              r={BOARD_CONFIG.CELL_SIZE / 2 - 1}
-              fill={nextColor === StoneColor.Black ? 'black' : 'white'}
-              stroke={nextColor === StoneColor.White ? 'black' : 'none'}
-              opacity={0.5}
+              key={`star-${index}`}
+              cx={BOARD_CONFIG.PADDING + point.x * BOARD_CONFIG.CELL_SIZE}
+              cy={BOARD_CONFIG.PADDING + point.y * BOARD_CONFIG.CELL_SIZE}
+              r={3}
+              fill={BOARD_CONFIG.COLORS.STAR}
             />
+          ))}
+
+          {/* 繪製棋子 */}
+          {boardState.map((row, y) =>
+            row.map((cell, x) => {
+              if (cell === StoneColor.Empty) return null;
+              const stoneColor = cell === StoneColor.Black ? 'black' : 'white';
+              const strokeColor = cell === StoneColor.White ? 'black' : 'none';
+              return (
+                <circle
+                  key={`${x}-${y}`}
+                  cx={BOARD_CONFIG.PADDING + x * BOARD_CONFIG.CELL_SIZE}
+                  cy={BOARD_CONFIG.PADDING + y * BOARD_CONFIG.CELL_SIZE}
+                  r={BOARD_CONFIG.CELL_SIZE / 2 - 1}
+                  fill={stoneColor}
+                  stroke={strokeColor}
+                />
+              );
+            })
           )}
-      </svg>
-    </div>
+
+          {/* 預覽棋子 */}
+          {hoverPosition &&
+            hoverPosition.x >= 0 &&
+            hoverPosition.x < BOARD_CONFIG.SIZE &&
+            hoverPosition.y >= 0 &&
+            hoverPosition.y < BOARD_CONFIG.SIZE &&
+            boardState[hoverPosition.y][hoverPosition.x] ===
+              StoneColor.Empty && (
+              <circle
+                cx={
+                  BOARD_CONFIG.PADDING +
+                  hoverPosition.x * BOARD_CONFIG.CELL_SIZE
+                }
+                cy={
+                  BOARD_CONFIG.PADDING +
+                  hoverPosition.y * BOARD_CONFIG.CELL_SIZE
+                }
+                r={BOARD_CONFIG.CELL_SIZE / 2 - 1}
+                fill={nextColor === StoneColor.Black ? 'black' : 'white'}
+                stroke={nextColor === StoneColor.White ? 'black' : 'none'}
+                opacity={0.5}
+              />
+            )}
+        </svg>
+      </div>
+
+      {/* 觸控放大鏡 */}
+      {touchState.isTouching &&
+        touchState.touchPosition &&
+        touchState.fingerPosition && (
+          <MagnifierOverlay
+            centerPosition={touchState.touchPosition}
+            currentPosition={touchState.touchPosition}
+            boardState={boardState}
+            nextColor={nextColor}
+            fingerPosition={touchState.fingerPosition}
+          />
+        )}
+    </>
   );
 };
 
