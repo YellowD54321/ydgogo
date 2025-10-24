@@ -5,10 +5,24 @@ import {
   StoneColor,
 } from '@/constants/gameConfig';
 import { useMove } from '@/hooks/useMove';
+import { useTouchMagnifier } from '@/hooks/useTouchMagnifier';
 
 const GoBoard: FC = () => {
   const { boardState, hoverPosition, handleMouseMove, handleClick, nextColor } =
     useMove();
+
+  // 觸控放大鏡功能
+  const { touchHandlers } = useTouchMagnifier({
+    boardSize: BOARD_CONFIG.SIZE,
+    cellSize: BOARD_CONFIG.CELL_SIZE,
+    padding: BOARD_CONFIG.PADDING,
+    boardWidth: BOARD_DIMENSIONS.WIDTH,
+    boardHeight: BOARD_DIMENSIONS.HEIGHT,
+    onPositionChange: handleMouseMove,
+    onConfirmPosition: handleClick,
+    isValidPosition: (position) =>
+      boardState[position.y][position.x] === StoneColor.Empty,
+  });
 
   const handleMouseMoveOnBoard = (e: React.MouseEvent<SVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -45,16 +59,17 @@ const GoBoard: FC = () => {
   };
 
   return (
-    <div className='max-w-full max-h-full overflow-hidden'>
+    <div className='overflow-hidden max-w-full max-h-full'>
       <svg
         width={BOARD_DIMENSIONS.WIDTH}
         height={BOARD_DIMENSIONS.HEIGHT}
         viewBox={`0 0 ${BOARD_DIMENSIONS.WIDTH} ${BOARD_DIMENSIONS.HEIGHT}`}
         preserveAspectRatio='xMidYMid meet'
-        className='h-auto max-w-full'
+        className='max-w-full h-auto'
         onMouseMove={handleMouseMoveOnBoard}
         onMouseLeave={() => handleMouseMove(null)}
         onClick={handleBoardClick}
+        {...touchHandlers}
       >
         {/* 木頭底色 */}
         <rect
