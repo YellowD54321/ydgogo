@@ -194,3 +194,46 @@ const isTouchDevice = 'ontouchstart' in window;
 - 可自訂放大鏡外觀（圓形/方形/主題色）
 - 添加震動反饋（當選中有效位置時）
 - 支援多點觸控手勢（縮放、旋轉等）
+
+---
+
+## 實作進度 TODO
+
+### 已完成 ✅
+
+- [x] 創建 `src/hooks/useTouchMagnifier.ts` hook
+  - 封裝觸控狀態管理 (`touchState`)
+  - 座標轉換邏輯 (`getTouchPosition`)
+  - 事件處理器 (`handleTouchStart`, `handleTouchMove`, `handleTouchEnd`)
+- [x] 整合到 `src/components/GoBoard.tsx`
+  - 使用 `useTouchMagnifier` hook
+  - 添加 `style={{ touchAction: 'none' }}` 解決 passive event listener 問題
+  - 綁定觸控事件處理器 `{...touchHandlers}`
+- [x] 基本觸控功能測試
+  - 手指按下顯示預覽棋子
+  - 手指移動可以調整位置
+  - 手指放開在最終位置落子
+
+### 待實作 ⏳
+
+- [ ] 創建 `src/components/MagnifierOverlay.tsx` 放大鏡組件
+  - [ ] 設計組件 Props 介面
+  - [ ] 實作 9x9 區域範圍計算
+  - [ ] 渲染放大的棋盤格線
+  - [ ] 渲染放大的棋子
+  - [ ] 高亮當前選中位置
+- [ ] 整合放大鏡到 GoBoard
+  - [ ] 根據 `touchState.isTouching` 條件渲染
+  - [ ] 傳遞必要的 props（位置、棋盤狀態等）
+  - [ ] 計算放大鏡顯示位置（手指上方）
+- [ ] 視覺效果優化
+  - [ ] 添加邊框和陰影
+  - [ ] 添加背景半透明效果
+  - [ ] 考慮添加淡入淡出動畫
+- [ ] 邊界處理
+  - [ ] 棋盤邊緣時調整顯示範圍
+  - [ ] 螢幕頂部時放大鏡改顯示在手指下方
+- [ ] 測試與優化
+  - [ ] 不同螢幕尺寸測試
+  - [ ] 效能測試與優化
+  - [ ] 與滑鼠操作的相容性測試
