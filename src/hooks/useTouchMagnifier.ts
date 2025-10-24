@@ -64,8 +64,6 @@ export const useTouchMagnifier = ({
   // 處理觸控開始
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<SVGElement>) => {
-      e.preventDefault(); // 防止觸發滑鼠事件
-
       const position = getTouchPosition(e);
       if (position) {
         setTouchState({
@@ -82,11 +80,32 @@ export const useTouchMagnifier = ({
     [getTouchPosition, onPositionChange]
   );
 
+  // 處理觸控移動
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<SVGElement>) => {
+      if (!touchState.isTouching) return;
+
+      const position = getTouchPosition(e);
+
+      // 更新觸控位置
+      setTouchState((prev) => ({
+        ...prev,
+        touchPosition: position,
+      }));
+
+      // 更新預覽位置
+      onPositionChange(position);
+
+      if (position) {
+        console.log('Touch Move:', position);
+      }
+    },
+    [touchState.isTouching, getTouchPosition, onPositionChange]
+  );
+
   // 處理觸控結束
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent<SVGElement>) => {
-      e.preventDefault(); // 防止觸發滑鼠事件
-
       if (touchState.isTouching && touchState.touchPosition) {
         const position = getTouchPosition(e);
 
@@ -115,6 +134,7 @@ export const useTouchMagnifier = ({
     touchState,
     touchHandlers: {
       onTouchStart: handleTouchStart,
+      onTouchMove: handleTouchMove,
       onTouchEnd: handleTouchEnd,
     },
   };

@@ -66,6 +66,7 @@ const GoBoard: FC = () => {
         viewBox={`0 0 ${BOARD_DIMENSIONS.WIDTH} ${BOARD_DIMENSIONS.HEIGHT}`}
         preserveAspectRatio='xMidYMid meet'
         className='max-w-full h-auto'
+        style={{ touchAction: 'none' }}
         onMouseMove={handleMouseMoveOnBoard}
         onMouseLeave={() => handleMouseMove(null)}
         onClick={handleBoardClick}
