@@ -117,6 +117,7 @@ interface MagnifierOverlayProps {
 ### 顯示內容
 
 - 9x9 的放大棋盤區域
+- 該區域內的星位（天元、四角等）
 - 該區域內已有的棋子（放大顯示）
 - 當前選中位置的高亮指示器
 - 半透明背景容器
@@ -243,6 +244,7 @@ const isTouchDevice = 'ontouchstart' in window;
   - [x] 設計組件 Props 介面
   - [x] 實作 9x9 區域範圍計算
   - [x] 渲染放大的棋盤格線
+  - [x] 渲染星位標記
   - [x] 渲染放大的棋子
   - [x] 高亮當前選中位置
 - [x] 整合放大鏡到 GoBoard

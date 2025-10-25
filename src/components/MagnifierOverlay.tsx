@@ -168,6 +168,23 @@ const MagnifierOverlay: FC<MagnifierOverlayProps> = ({
               </g>
             ))}
 
+            {/* 繪製星位 */}
+            {BOARD_CONFIG.STAR_POINTS.filter(
+              (point) =>
+                point.x >= magnifierRange.startX &&
+                point.x <= magnifierRange.endX &&
+                point.y >= magnifierRange.startY &&
+                point.y <= magnifierRange.endY
+            ).map((point, index) => (
+              <circle
+                key={`star-${index}`}
+                cx={(point.x - magnifierRange.startX) * magnifiedCellSize}
+                cy={(point.y - magnifierRange.startY) * magnifiedCellSize}
+                r={6}
+                fill={BOARD_CONFIG.COLORS.STAR}
+              />
+            ))}
+
             {/* 繪製已有的棋子 */}
             {Array.from(
               { length: magnifierRange.endY - magnifierRange.startY + 1 },
