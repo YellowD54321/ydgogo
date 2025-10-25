@@ -133,6 +133,29 @@ interface MagnifierOverlayProps {
 
 ## 優化細節
 
+### 防止瀏覽器預設行為
+
+在所有 touch start 和 touch end 事件處理器中添加 `preventDefault()`，避免瀏覽器預設行為干擾：
+
+```typescript
+const handleTouchStart = (e: React.TouchEvent<SVGElement>) => {
+  e.preventDefault(); // 防止 Safari 長按放大鏡、頁面滾動等預設行為
+  // ... 處理邏輯
+};
+
+const handleTouchEnd = (e: React.TouchEvent<SVGElement>) => {
+  e.preventDefault(); // 確保觸控結束時也阻止預設行為
+  // ... 處理邏輯
+};
+```
+
+**為什麼需要 preventDefault()：**
+
+- Safari 預設長按會觸發系統放大鏡功能
+- 避免頁面意外滾動或縮放
+- 防止觸發上下文選單（context menu）
+- 確保觸控操作完全由我們的邏輯控制
+
 ### 防止誤觸
 
 ```typescript

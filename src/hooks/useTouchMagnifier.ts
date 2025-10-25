@@ -66,6 +66,8 @@ export const useTouchMagnifier = ({
   // 處理觸控開始
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<SVGElement>) => {
+      e.preventDefault();
+
       const position = getTouchPosition(e);
       const touch = e.touches[0];
 
@@ -115,6 +117,8 @@ export const useTouchMagnifier = ({
   // 處理觸控結束
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent<SVGElement>) => {
+      e.preventDefault();
+
       if (touchState.isTouching && touchState.touchPosition) {
         const position = getTouchPosition(e);
 
