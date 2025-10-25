@@ -117,6 +117,7 @@ interface MagnifierOverlayProps {
 ### 顯示內容
 
 - 9x9 的放大棋盤區域
+- 該區域內的星位（天元、四角等）
 - 該區域內已有的棋子（放大顯示）
 - 當前選中位置的高亮指示器
 - 半透明背景容器
@@ -132,6 +133,29 @@ interface MagnifierOverlayProps {
 - **陰影**：`box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3)`
 
 ## 優化細節
+
+### 防止瀏覽器預設行為
+
+在所有 touch start 和 touch end 事件處理器中添加 `preventDefault()`，避免瀏覽器預設行為干擾：
+
+```typescript
+const handleTouchStart = (e: React.TouchEvent<SVGElement>) => {
+  e.preventDefault(); // 防止 Safari 長按放大鏡、頁面滾動等預設行為
+  // ... 處理邏輯
+};
+
+const handleTouchEnd = (e: React.TouchEvent<SVGElement>) => {
+  e.preventDefault(); // 確保觸控結束時也阻止預設行為
+  // ... 處理邏輯
+};
+```
+
+**為什麼需要 preventDefault()：**
+
+- Safari 預設長按會觸發系統放大鏡功能
+- 避免頁面意外滾動或縮放
+- 防止觸發上下文選單（context menu）
+- 確保觸控操作完全由我們的邏輯控制
 
 ### 防止誤觸
 
@@ -220,6 +244,7 @@ const isTouchDevice = 'ontouchstart' in window;
   - [x] 設計組件 Props 介面
   - [x] 實作 9x9 區域範圍計算
   - [x] 渲染放大的棋盤格線
+  - [x] 渲染星位標記
   - [x] 渲染放大的棋子
   - [x] 高亮當前選中位置
 - [x] 整合放大鏡到 GoBoard
