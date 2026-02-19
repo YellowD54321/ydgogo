@@ -6,6 +6,7 @@ import {
   redirect,
 } from '@tanstack/react-router';
 import { AuthContextType } from '@/contexts/AuthContext';
+import Header from '@/components/Header';
 import LoginPage from '@/pages/LoginPage';
 import NewGamePage from '@/pages/NewGamePage';
 
@@ -13,8 +14,17 @@ interface RouterContext {
   auth: AuthContextType;
 }
 
+function RootLayout() {
+  return (
+    <>
+      <Header />
+      <Outlet />
+    </>
+  );
+}
+
 const rootRoute = createRootRouteWithContext<RouterContext>()({
-  component: Outlet,
+  component: RootLayout,
 });
 
 const indexRoute = createRoute({

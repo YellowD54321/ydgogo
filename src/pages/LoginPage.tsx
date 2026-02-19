@@ -24,13 +24,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-6">
-      <h1 className="text-3xl font-bold">ydgogo</h1>
+    <div className='flex flex-col gap-6 justify-center items-center min-h-screen'>
+      <h1 className='text-3xl font-bold'>ydgogo</h1>
 
       {loginMutation.isPending && <CircularProgress size={24} />}
 
       {loginMutation.isError && (
-        <Alert severity="error" className="max-w-xs">
+        <Alert severity='error' className='max-w-xs'>
           登入失敗，請稍後再試
         </Alert>
       )}
