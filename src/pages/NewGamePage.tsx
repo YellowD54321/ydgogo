@@ -15,7 +15,7 @@ function NewGameContent() {
   });
 
   return (
-    <div className="flex relative flex-col justify-center items-center">
+    <div className='flex flex-col justify-center items-center pb-20 h-full'>
       {isLoading ? (
         <div>Loading draft...</div>
       ) : (
@@ -24,7 +24,6 @@ function NewGameContent() {
           initialMoveTree={draftTree}
           initialDraftId={draftId}
         >
-          <div className="w-full h-40"></div>
           <GoBoard />
           <ActionButtons />
         </MoveProvider>

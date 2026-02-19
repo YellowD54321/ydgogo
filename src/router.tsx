@@ -16,10 +16,12 @@ interface RouterContext {
 
 function RootLayout() {
   return (
-    <>
+    <div className="flex flex-col h-screen">
       <Header />
-      <Outlet />
-    </>
+      <main className="flex-1 overflow-auto">
+        <Outlet />
+      </main>
+    </div>
   );
 }
 
