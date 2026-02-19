@@ -23,6 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# environment variables
+.env
+.env.local
+.env.*.local
+
 # test coverage
 coverage
 .nyc_output/

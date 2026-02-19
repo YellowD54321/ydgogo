@@ -5,7 +5,7 @@ import { MoveProvider } from '@/contexts/MoveProvider';
 import { ServiceProvider } from '@/contexts/ServiceProvider';
 import { useDraftLoader } from '@/hooks/useDraftLoader';
 
-function NewGamePage() {
+function NewGameContent() {
   const urlId = DRAFT_CONFIG.NEW_GAME_ID;
 
   const { draftTree, draftId, isLoading } = useDraftLoader({
@@ -15,7 +15,7 @@ function NewGamePage() {
   });
 
   return (
-    <div className='flex relative flex-col justify-center items-center'>
+    <div className='flex flex-col justify-center items-center pb-20 h-full'>
       {isLoading ? (
         <div>Loading draft...</div>
       ) : (
@@ -24,7 +24,6 @@ function NewGamePage() {
           initialMoveTree={draftTree}
           initialDraftId={draftId}
         >
-          <div className='w-full h-40'></div>
           <GoBoard />
           <ActionButtons />
         </MoveProvider>
@@ -33,12 +32,10 @@ function NewGamePage() {
   );
 }
 
-function App() {
+export default function NewGamePage() {
   return (
     <ServiceProvider>
-      <NewGamePage />
+      <NewGameContent />
     </ServiceProvider>
   );
 }
-
-export default App;
