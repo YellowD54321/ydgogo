@@ -12,24 +12,32 @@ export default function Header() {
   };
 
   return (
-    <header className="flex items-center justify-between px-4 py-2 bg-neutral-950">
-      <Link to="/" className="text-lg font-bold no-underline text-white">
+    <header className='flex justify-between items-center px-4 py-2 bg-neutral-950'>
+      <Link to='/' className='text-lg font-bold text-white no-underline'>
         ydgogo
       </Link>
 
       {auth.isAuthenticated ? (
-        <div className="flex items-center gap-3">
-          <Link to="/records" className="text-sm no-underline text-neutral-300 hover:text-white">
+        <div className='flex gap-3 items-center'>
+          <Link
+            to='/records'
+            className='text-sm no-underline text-neutral-300 hover:text-white'
+          >
             我的棋譜
           </Link>
-          <span className="text-sm text-neutral-300">{auth.user?.email}</span>
-          <Button size="small" variant="outlined" color="inherit" onClick={handleLogout}>
+          <span className='text-sm text-neutral-300'>{auth.user?.email}</span>
+          <Button
+            size='small'
+            variant='outlined'
+            color='inherit'
+            onClick={handleLogout}
+          >
             登出
           </Button>
         </div>
       ) : (
-        <Link to="/login">
-          <Button size="small" variant="outlined" color="inherit">
+        <Link to='/login'>
+          <Button size='small' variant='outlined' color='inherit'>
             登入
           </Button>
         </Link>
