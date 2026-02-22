@@ -4,6 +4,7 @@ import {
   IndexedDBService,
   IDraft,
   IDraftMetadata,
+  SyncStatus,
 } from './storage/IndexedDBService';
 import { ISerializedMoveTree } from '@/models/serialize/types';
 
@@ -59,5 +60,40 @@ export class DraftService {
 
   public async deleteDraft(id: string): Promise<void> {
     await this.dbService.deleteDraft(id);
+  }
+
+  public async saveCloudDraft(
+    moveTree: IMoveTree,
+    title: string,
+    userId: string,
+    id?: string,
+    serverUpdatedAt?: string,
+  ): Promise<string> {
+    const serializedData = moveTree.serialize();
+    const gameTree: ISerializedMoveTree = JSON.parse(serializedData);
+    const draft: IDraft = {
+      id: id || '',
+      title,
+      createdAt: 0,
+      updatedAt: 0,
+      gameTree,
+      syncStatus: 'pending',
+      serverUpdatedAt: serverUpdatedAt ?? null,
+      userId,
+    };
+
+    return await this.dbService.saveDraft(draft);
+  }
+
+  public async getPendingDrafts(): Promise<IDraft[]> {
+    return await this.dbService.getPendingDrafts();
+  }
+
+  public async updateSyncStatus(
+    id: string,
+    syncStatus: SyncStatus,
+    serverUpdatedAt?: string,
+  ): Promise<void> {
+    await this.dbService.updateSyncStatus(id, syncStatus, serverUpdatedAt);
   }
 }
