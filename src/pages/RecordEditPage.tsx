@@ -9,6 +9,7 @@ import { BOARD_CONFIG } from '@/constants/gameConfig';
 import { MoveProvider } from '@/contexts/MoveProvider';
 import { ServiceProvider } from '@/contexts/ServiceProvider';
 import { useAuth } from '@/hooks/useAuth';
+import { useSyncOnReconnect } from '@/hooks/useSyncOnReconnect';
 import { getRecord } from '@/services/api/recordsApi';
 import { MoveTree } from '@/models/moveTree/MoveTree';
 
@@ -16,6 +17,8 @@ function RecordEditContent() {
   const { recordId } = useParams({ from: '/records/$recordId' });
   const auth = useAuth();
   const token = auth.token!;
+
+  useSyncOnReconnect();
 
   const [title, setTitle] = useState('');
 
