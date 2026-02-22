@@ -20,6 +20,9 @@ interface MoveProviderProps {
   boardSize: number;
   initialMoveTree?: MoveTree | null;
   initialDraftId?: string | null;
+  recordId?: string;
+  recordTitle?: string;
+  userId?: string;
   children: ReactNode;
 }
 
@@ -27,11 +30,16 @@ export const MoveProvider: FC<MoveProviderProps> = ({
   boardSize,
   initialMoveTree = null,
   initialDraftId = null,
+  recordId,
+  recordTitle,
+  userId,
   children,
 }) => {
   const moveTreeRef = useRef<MoveTree>(initialMoveTree || new MoveTree());
   const autoSaveDraftIdRef = useRef<string>(initialDraftId || '');
   const { draftService, isInitialized } = useService();
+
+  const isCloudRecord = !!(recordId && userId);
 
   // TODO: 重構為 Board 類別，封裝取得座標的方法，避免容易搞混 x, y 的順序
   // x, y 的順序是 boardState[y][x]
@@ -58,12 +66,21 @@ export const MoveProvider: FC<MoveProviderProps> = ({
     if (!isInitialized) return;
 
     try {
-      const draftId = await draftService.saveDraft(
-        moveTreeRef.current,
-        'New Game',
-        autoSaveDraftIdRef.current
-      );
-      autoSaveDraftIdRef.current = draftId;
+      if (isCloudRecord) {
+        await draftService.saveCloudDraft(
+          moveTreeRef.current,
+          recordTitle || '未命名棋譜',
+          userId,
+          recordId,
+        );
+      } else {
+        const draftId = await draftService.saveDraft(
+          moveTreeRef.current,
+          'New Game',
+          autoSaveDraftIdRef.current,
+        );
+        autoSaveDraftIdRef.current = draftId;
+      }
     } catch (error) {
       console.error('Save draft failed:', error);
     }

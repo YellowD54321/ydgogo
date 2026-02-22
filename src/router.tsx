@@ -9,6 +9,8 @@ import { AuthContextType } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
 import LoginPage from '@/pages/LoginPage';
 import NewGamePage from '@/pages/NewGamePage';
+import RecordListPage from '@/pages/RecordListPage';
+import RecordEditPage from '@/pages/RecordEditPage';
 
 interface RouterContext {
   auth: AuthContextType;
@@ -46,7 +48,34 @@ const loginRoute = createRoute({
   },
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute]);
+const recordsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/records',
+  component: RecordListPage,
+  beforeLoad: ({ context }) => {
+    if (!context.auth.isAuthenticated) {
+      throw redirect({ to: '/login' });
+    }
+  },
+});
+
+const recordEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/records/$recordId',
+  component: RecordEditPage,
+  beforeLoad: ({ context }) => {
+    if (!context.auth.isAuthenticated) {
+      throw redirect({ to: '/login' });
+    }
+  },
+});
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  recordsRoute,
+  recordEditRoute,
+]);
 
 export const router = createRouter({
   routeTree,

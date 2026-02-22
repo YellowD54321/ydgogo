@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { UserInfo } from '@/services/api/authApi';
+import { UserInfo } from '@/types/apis/authApi.types';
 import { AUTH_STORAGE_KEYS } from '@/constants/authConfig';
 import { AuthContext } from './AuthContext';
 

@@ -1,53 +1,12 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-export interface UserInfo {
-  userId: string;
-  email: string;
-}
-
-export interface LoginResponse {
-  message: string;
-  user: UserInfo;
-  token: string;
-}
-
-export interface RegisterResponse {
-  message: string;
-  user: UserInfo & { createdAt: string };
-}
-
-export class ApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
-}
-
-async function postJson<T>(endpoint: string, body: Record<string, unknown>): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new ApiError(response.status, data.error ?? 'Unknown error');
-  }
-
-  return data as T;
-}
+import { LoginResponse, RegisterResponse } from '@/types/apis/authApi.types';
+import { ApiError, fetchJson } from './common/apiClient';
 
 export function googleLogin(idToken: string): Promise<LoginResponse> {
-  return postJson<LoginResponse>('/login/googleOauth', { idToken });
+  return fetchJson<LoginResponse>('POST', '/login/googleOauth', { idToken });
 }
 
 export function googleRegister(idToken: string): Promise<RegisterResponse> {
-  return postJson<RegisterResponse>('/register/googleOauth', { idToken });
+  return fetchJson<RegisterResponse>('POST', '/register/googleOauth', { idToken });
 }
 
 /**
