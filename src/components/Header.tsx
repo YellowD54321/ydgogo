@@ -19,6 +19,9 @@ export default function Header() {
 
       {auth.isAuthenticated ? (
         <div className="flex items-center gap-3">
+          <Link to="/records" className="text-sm no-underline text-neutral-300 hover:text-white">
+            我的棋譜
+          </Link>
           <span className="text-sm text-neutral-300">{auth.user?.email}</span>
           <Button size="small" variant="outlined" color="inherit" onClick={handleLogout}>
             登出
