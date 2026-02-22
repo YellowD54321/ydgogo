@@ -50,7 +50,13 @@ function RecordEditContent() {
 
   return (
     <div className='flex flex-col justify-center items-center pb-20 h-full'>
-      <MoveProvider boardSize={BOARD_CONFIG.SIZE} initialMoveTree={moveTree}>
+      <MoveProvider
+        boardSize={BOARD_CONFIG.SIZE}
+        initialMoveTree={moveTree}
+        recordId={recordId}
+        recordTitle={title}
+        userId={auth.user?.userId}
+      >
         <RecordToolbar
           recordId={recordId}
           title={title}
