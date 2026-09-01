@@ -25,4 +25,11 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Playwright E2E 非 React 程式，fixture 的 `use` 參數會誤觸 react-hooks 規則
+    files: ['e2e/**/*.ts'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+    },
+  },
 )
